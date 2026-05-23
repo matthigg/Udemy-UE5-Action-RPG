@@ -1,0 +1,123 @@
+// Fill out your copyright notice in the Description page of Project Settings.
+
+
+#include "Items/Item.h"
+#include "Slash/DebugMacros.h"
+#include "Components/SphereComponent.h"
+#include "Characters/SlashCharacter.h"
+
+// Sets default values
+AItem::AItem()
+{
+ 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+	PrimaryActorTick.bCanEverTick = true;
+
+	// ItemMesh is a pointer that returns the object returned by the CreateDefaultSubobject function. This function 
+	// creates a new subobject of the specified type and name, and returns a pointer to it. It's a template function, 
+	// so it can be used to create subobjects of any type (aka a "factory function" -- factory functions return
+	// objects). In this case, we're creating a UStaticMeshComponent, which is a component that can be used to render
+	// a static mesh in the world. The name "ItemMeshComponent" is used to identify this component in the editor and 
+	// in code.
+	ItemMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("ItemMeshComponent"));
+
+	// This reassigns ItemMesh to the root component of the actor. The root component is the top-level component in
+	// the component hierarchy of an actor.
+	//
+	// Note: there's an issue with assigning ItemMesh to RootComponent, from Gemini:
+	// The root cause of this issue stems from an initialization ordering quirk within the Unreal Engine C++ reflection
+	// system, which causes components created in C++ to default back to Static regardless of what is configured in the
+	// editor.Why It's HappeningWhen setting RootComponent = ItemMesh; directly in the constructor, ItemMesh initializes
+	// with standard fallback default properties. Because it is a UStaticMeshComponent, its native default mobility is
+	// set to Static
+	RootComponent = ItemMesh;
+
+	// FIX: Explicitly set the component mobility to Movable in C++
+	ItemMesh->SetMobility(EComponentMobility::Movable);
+
+	SphereCPP = CreateDefaultSubobject<USphereComponent>(TEXT("SphereCPP"));
+	SphereCPP->SetupAttachment(GetRootComponent());
+
+	// Fix parenting mobility just to be safe
+	SphereCPP->SetMobility(EComponentMobility::Movable);
+
+	// Ensure the sphere is set to generate overlap events
+	SphereCPP->SetGenerateOverlapEvents(true);
+
+	// Set the collision profile to overlap all objects by default
+	SphereCPP->SetCollisionProfileName(TEXT("OverlapAllDynamic"));
+}
+
+// Called when the game starts or when spawned
+void AItem::BeginPlay()
+{
+	Super::BeginPlay();
+
+	// This is how to bind a callback to a delegate
+	// OnComponentBeginOverlap is a regular variable
+	SphereCPP->OnComponentBeginOverlap.AddDynamic(this, &AItem::OnSphereOverlap);
+
+	SphereCPP->OnComponentEndOverlap.AddDynamic(this, &AItem::OnSphereEndOverlap);
+}
+
+float AItem::TransformedSin(float Value)
+{
+	return Amplitude * FMath::Sin(Value * TimeConstant);
+}
+
+float AItem::TransformedSinPure()
+{
+	return Amplitude * FMath::Sin(RunningTime * TimeConstant);
+}
+
+float AItem::TransformedCosPure()
+{
+	return Amplitude * FMath::Cos(RunningTime * TimeConstant);
+}
+
+void AItem::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	ASlashCharacter* SlashCharacter = Cast<ASlashCharacter>(OtherActor);
+	if (SlashCharacter)
+	{
+		SlashCharacter->SetOverlappingItem(this);
+	}
+
+	// Logging
+	const FString OtherActorName = OtherActor->GetName();
+	UE_LOG(LogTemp, Display, TEXT("Other Actor Name: %s"), *OtherActorName);
+	if (GEngine)
+	{
+		GEngine->AddOnScreenDebugMessage(1, 30.f, FColor::Red, OtherActorName);
+	}
+}
+
+void AItem::OnSphereEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+{
+	ASlashCharacter* SlashCharacter = Cast<ASlashCharacter>(OtherActor);
+	if (SlashCharacter)
+	{
+		SlashCharacter->SetOverlappingItem(nullptr);
+	}
+
+	// Logging
+	const FString OtherActorName = FString("Ending Overlap with: ") + OtherActor->GetName();
+	UE_LOG(LogTemp, Display, TEXT("END - Other Actor Name: %s"), *OtherActorName);
+	if (GEngine)
+	{
+		GEngine->AddOnScreenDebugMessage(1, 30.f, FColor::Blue, OtherActorName);
+	}
+}
+
+// Called every frame
+void AItem::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+	RunningTime += DeltaTime;
+
+	if (ItemState == EItemState::EIS_Hovering)
+	{
+		//const float Z = TransformedSinPure();
+		//AddActorWorldOffset(FVector(0.f, 0.f, Z));
+	}
+}
+
