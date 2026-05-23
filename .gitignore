@@ -1,0 +1,11 @@
+# Unreal Engine temporary folders
+Binaries/
+DerivedDataCache/
+Intermediate/
+Saved/
+
+# Visual Studio files
+.vs/
+*.sln
+*.suo
+*.user
