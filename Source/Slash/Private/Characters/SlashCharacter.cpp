@@ -75,6 +75,8 @@ void ASlashCharacter::SetWeaponCollisionEnabled(ECollisionEnabled::Type Collisio
 
 void ASlashCharacter::MoveForward(float Value)
 {
+	UE_LOG(LogTemp, Warning, TEXT("Value: %f"), Value);
+
 	if (ActionState != EActionState::EAS_Unoccupied) return;
 
 	if (Controller && (Value != 0.f))
