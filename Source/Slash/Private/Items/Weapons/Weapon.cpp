@@ -80,8 +80,19 @@ void AWeapon::OnSphereEndOverlap(UPrimitiveComponent* OverlappedComponent, AActo
 	Super::OnSphereEndOverlap(OverlappedComponent, OtherActor, OtherComp, OtherBodyIndex);
 }
 
-void AWeapon::OnBoxOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+void AWeapon::OnBoxOverlap(
+	UPrimitiveComponent* OverlappedComponent, 
+	AActor* OtherActor, UPrimitiveComponent* 
+	OtherComp, 
+	int32 OtherBodyIndex, 
+	bool bFromSweep, 
+	const FHitResult& SweepResult
+)
 {
+	UE_LOG(LogTemp, Warning, TEXT("OnBoxOverlap"));
+	UE_LOG(LogTemp, Warning, TEXT("======================================"));
+
+
 	// GetComponentLocation() gets from the world/global location, GetRelativeLocation() gets from the local location
 	const FVector Start = BoxTraceStartCPP->GetComponentLocation();
 	const FVector End = BoxTraceEndCPP->GetComponentLocation();

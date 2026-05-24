@@ -1,6 +1,6 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-
+#include "CoreMinimal.h"
 #include "Characters/SlashCharacter.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
@@ -67,6 +67,10 @@ void ASlashCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
 
 void ASlashCharacter::SetWeaponCollisionEnabled(ECollisionEnabled::Type CollisionEnabled)
 {
+	// This explicitly calls the engine's reflection system for this specific enum type
+	UE_LOG(LogTemp, Warning, TEXT("CollisionEnabled: %s"), *StaticEnum<ECollisionEnabled::Type>()->GetValueAsString(CollisionEnabled));
+	UE_LOG(LogTemp, Warning, TEXT("================================"));
+
 	if (EquippedWeapon && EquippedWeapon->GetWeaponBox())
 	{
 		EquippedWeapon->GetWeaponBox()->SetCollisionEnabled(CollisionEnabled);

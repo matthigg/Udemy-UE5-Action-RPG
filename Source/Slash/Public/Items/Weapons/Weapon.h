@@ -56,6 +56,7 @@ protected:
 	);
 
 private:
+	// Generally speaking, EditAnywhere is for variables and VisibleAnywhere is for components
 	UPROPERTY(EditAnywhere, Category = "Weapon Properties")
 	USoundBase* EquipSound;
 
