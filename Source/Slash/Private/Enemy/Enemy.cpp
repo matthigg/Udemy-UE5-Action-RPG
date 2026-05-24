@@ -20,6 +20,8 @@ AEnemy::AEnemy()
 	GetMesh()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
 	GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
 
+	//GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Visibility, ECollisionResponse::ECR_Ignore);
+
 }
 
 // Called when the game starts or when spawned
@@ -29,16 +31,33 @@ void AEnemy::BeginPlay()
 	
 }
 
+void AEnemy::GetHit(const FVector& ImpactPoint)
+{
+	UE_LOG(LogTemp, Warning, TEXT("***** GetHit *****"));
+	UE_LOG(LogTemp, Warning, TEXT("======================================"));
+
+	DRAW_SPHERE_COLOR(ImpactPoint, FColor::Magenta);
+
+	PlayHitReactMontage(FName("FromLeft"));
+}
+
 void AEnemy::PlayHitReactMontage(const FName& SectionName)
 {
-	UE_LOG(LogTemp, Warning, TEXT("PlayHitReactMontage SectionName %s"), *SectionName.ToString());
+	UE_LOG(LogTemp, Warning, TEXT("PlayHitReactMontage SectionName: %s"), *SectionName.ToString());
 	UE_LOG(LogTemp, Warning, TEXT("=============================="));
 
 	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
 	if (AnimInstance && HitReactMontage)
 	{
+		UE_LOG(LogTemp, Warning, TEXT("SUCCESS: AnimInstance and HitReactMontage are valid! Playing now."));
 		AnimInstance->Montage_Play(HitReactMontage);
 		AnimInstance->Montage_JumpToSection(SectionName, HitReactMontage);
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("ERROR: AnimInstance is %s | HitReactMontage is %s"),
+			AnimInstance ? TEXT("Valid") : TEXT("NULL"),
+			HitReactMontage ? TEXT("Valid") : TEXT("NULL"));
 	}
 }
 
@@ -54,15 +73,5 @@ void AEnemy::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
-}
-
-void AEnemy::GetHit(const FVector& ImpactPoint)
-{
-	UE_LOG(LogTemp, Warning, TEXT("***** GetHit *****"));
-	UE_LOG(LogTemp, Warning, TEXT("======================================"));
-
-	DRAW_SPHERE_COLOR(ImpactPoint, FColor::Magenta);
-
-	PlayHitReactMontage(FName("FromLeft"));
 }
 

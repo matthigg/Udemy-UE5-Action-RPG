@@ -81,29 +81,23 @@ void AWeapon::OnSphereEndOverlap(UPrimitiveComponent* OverlappedComponent, AActo
 }
 
 void AWeapon::OnBoxOverlap(
-	UPrimitiveComponent* OverlappedComponent, 
-	AActor* OtherActor, UPrimitiveComponent* 
-	OtherComp, 
-	int32 OtherBodyIndex, 
-	bool bFromSweep, 
+	UPrimitiveComponent* OverlappedComponent,
+	AActor* OtherActor, UPrimitiveComponent* OtherComp,
+	int32 OtherBodyIndex,
+	bool bFromSweep,
 	const FHitResult& SweepResult
 )
 {
 	UE_LOG(LogTemp, Warning, TEXT("OnBoxOverlap"));
 	UE_LOG(LogTemp, Warning, TEXT("======================================"));
 
-
-	// GetComponentLocation() gets from the world/global location, GetRelativeLocation() gets from the local location
 	const FVector Start = BoxTraceStartCPP->GetComponentLocation();
 	const FVector End = BoxTraceEndCPP->GetComponentLocation();
 
-	// Note: a TArray is a class with a dynamically adjusted array, which is nice considering C++ doesn't offer that
-	// by default. Additionally, TArray is a template class, which is why we have to specify the type to store. Also,
-	// TArrays typically aren't pointers, which is why we're access its Add method via dot notation, e.g.
-	// ActorsToIgnore.Add(...);
 	TArray<AActor*> ActorsToIgnore;
 	ActorsToIgnore.Add(this);
 	FHitResult BoxHit;
+
 	UKismetSystemLibrary::BoxTraceSingle(
 		this,
 		Start,
@@ -114,18 +108,106 @@ void AWeapon::OnBoxOverlap(
 		false,
 		ActorsToIgnore,
 		EDrawDebugTrace::ForDuration,
-		BoxHit, // Parameter name is FHitResult &OutHits, so the argument is passed by reference
+		BoxHit,
 		true
 	);
+
+	// ==========================================
+	// 1. LOGGING OUT BOXHIT DETAILS
+	// ==========================================
+	if (BoxHit.bBlockingHit)
+	{
+		// Logs general hit info: bone name hit, component hit, and impact location vectors
+		UE_LOG(LogTemp, Warning, TEXT("BoxHit Registered! Component: %s | Bone: %s | Impact Point: %s"),
+			*BoxHit.GetComponent()->GetName(),
+			*BoxHit.BoneName.ToString(),
+			*BoxHit.ImpactPoint.ToString());
+	}
+	else
+	{
+		UE_LOG(LogTemp, Log, TEXT("BoxTrace missed everything."));
+	}
+
+	// ==========================================
+	// 2. LOGGING OUT BOXHIT.GETACTOR()
+	// ==========================================
 	if (BoxHit.GetActor())
 	{
-		// Since the AEnemy class in Enemy.h inherits IHitInterface, it "is" of type IHitInterface
-		// (in addition to ACharacter).
+		// Safely extract the hit actor's name
+		FString HitActorName = BoxHit.GetActor()->GetName();
+
+		UE_LOG(LogTemp, Warning, TEXT("BoxHit.GetActor() Found: %s"), *HitActorName);
+		UE_LOG(LogTemp, Warning, TEXT("==============================="));
+
 		IHitInterface* HitInterface = Cast<IHitInterface>(BoxHit.GetActor());
 		if (HitInterface)
 		{
 			HitInterface->GetHit(BoxHit.ImpactPoint);
 		}
-
 	}
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+//void AWeapon::OnBoxOverlap(
+//	UPrimitiveComponent* OverlappedComponent, 
+//	AActor* OtherActor, UPrimitiveComponent* 
+//	OtherComp, 
+//	int32 OtherBodyIndex, 
+//	bool bFromSweep, 
+//	const FHitResult& SweepResult
+//)
+//{
+//	UE_LOG(LogTemp, Warning, TEXT("OnBoxOverlap"));
+//	UE_LOG(LogTemp, Warning, TEXT("======================================"));
+//
+//
+//	// GetComponentLocation() gets from the world/global location, GetRelativeLocation() gets from the local location
+//	const FVector Start = BoxTraceStartCPP->GetComponentLocation();
+//	const FVector End = BoxTraceEndCPP->GetComponentLocation();
+//
+//	// Note: a TArray is a class with a dynamically adjusted array, which is nice considering C++ doesn't offer that
+//	// by default. Additionally, TArray is a template class, which is why we have to specify the type to store. Also,
+//	// TArrays typically aren't pointers, which is why we're access its Add method via dot notation, e.g.
+//	// ActorsToIgnore.Add(...);
+//	TArray<AActor*> ActorsToIgnore;
+//	ActorsToIgnore.Add(this);
+//	FHitResult BoxHit;
+//	UKismetSystemLibrary::BoxTraceSingle(
+//		this,
+//		Start,
+//		End,
+//		FVector(5.f, 5.f, 5.f),
+//		BoxTraceStartCPP->GetComponentRotation(),
+//		ETraceTypeQuery::TraceTypeQuery1,
+//		false,
+//		ActorsToIgnore,
+//		EDrawDebugTrace::ForDuration,
+//		BoxHit, // Parameter name is FHitResult &OutHits, so the argument is passed by reference
+//		true
+//	);
+//	if (BoxHit.GetActor())
+//	{
+//		UE_LOG(LogTemp, Warning, TEXT("BoxHit.GetActor()"));
+//		UE_LOG(LogTemp, Warning, TEXT("==============================="));
+//
+//		// Since the AEnemy class in Enemy.h inherits IHitInterface, it "is" of type IHitInterface
+//		// (in addition to ACharacter).
+//		IHitInterface* HitInterface = Cast<IHitInterface>(BoxHit.GetActor());
+//		if (HitInterface)
+//		{
+//			HitInterface->GetHit(BoxHit.ImpactPoint);
+//		}
+//
+//	}
+//}
