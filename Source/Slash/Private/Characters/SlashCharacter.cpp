@@ -202,7 +202,7 @@ void ASlashCharacter::PlayAttackMontage()
 		AnimInstance->Montage_Play(AttackMontage);
 
 		// Randomly select which attack animation to play
-		const int32 Selection = FMath::RandRange(0, 1);
+		const int32 Selection = FMath::RandRange(0, 2);
 		FName SectionName = FName();
 
 		switch (Selection)
@@ -212,6 +212,9 @@ void ASlashCharacter::PlayAttackMontage()
 			break;
 		case 1:
 			SectionName = FName("Attack2");
+			break;
+		case 2:
+			SectionName = FName("Attack3");
 			break;
 		default:
 			break;
