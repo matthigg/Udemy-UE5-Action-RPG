@@ -29,6 +29,19 @@ void AEnemy::BeginPlay()
 	
 }
 
+void AEnemy::PlayHitReactMontage(const FName& SectionName)
+{
+	UE_LOG(LogTemp, Warning, TEXT("PlayHitReactMontage SectionName %s"), *SectionName.ToString());
+	UE_LOG(LogTemp, Warning, TEXT("=============================="));
+
+	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+	if (AnimInstance && HitReactMontage)
+	{
+		AnimInstance->Montage_Play(HitReactMontage);
+		AnimInstance->Montage_JumpToSection(SectionName, HitReactMontage);
+	}
+}
+
 // Called every frame
 void AEnemy::Tick(float DeltaTime)
 {
@@ -49,5 +62,7 @@ void AEnemy::GetHit(const FVector& ImpactPoint)
 	UE_LOG(LogTemp, Warning, TEXT("======================================"));
 
 	DRAW_SPHERE_COLOR(ImpactPoint, FColor::Magenta);
+
+	PlayHitReactMontage(FName("FromLeft"));
 }
 

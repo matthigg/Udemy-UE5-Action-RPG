@@ -249,10 +249,10 @@ void ASlashCharacter::PlayAttackMontage()
 		switch (Selection)
 		{
 		case 0:
-			SectionName = FName("Attack1");
+			SectionName = FName("Attack3");
 			break;
 		case 1:
-			SectionName = FName("Attack2");
+			SectionName = FName("Attack3");
 			break;
 		case 2:
 			SectionName = FName("Attack3");
@@ -265,7 +265,7 @@ void ASlashCharacter::PlayAttackMontage()
 	}
 }
 
-void ASlashCharacter::PlayEquipMontage(FName SectionName)
+void ASlashCharacter::PlayEquipMontage(const FName& SectionName)
 {
 	UE_LOG(LogTemp, Warning, TEXT("PlayEquipMontage SectionName %s"), *SectionName.ToString());
 	UE_LOG(LogTemp, Warning, TEXT("=============================="));
