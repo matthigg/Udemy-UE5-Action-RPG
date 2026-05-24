@@ -45,6 +45,9 @@ void AEnemy::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 
 void AEnemy::GetHit(const FVector& ImpactPoint)
 {
-	DRAW_SPHERE_COLOR(ImpactPoint, FColor::Orange);
+	UE_LOG(LogTemp, Warning, TEXT("***** GetHit *****"));
+	UE_LOG(LogTemp, Warning, TEXT("======================================"));
+
+	DRAW_SPHERE_COLOR(ImpactPoint, FColor::Magenta);
 }
 
