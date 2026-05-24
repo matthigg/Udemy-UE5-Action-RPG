@@ -35,6 +35,7 @@ protected:
 	/**
 	* Callbacks for input
 	*/
+
 	void MoveForward(float Value);
 	void MoveRight(float Value);
 	void Turn(float Value);
@@ -45,6 +46,7 @@ protected:
 	/**
 	* Play montage functions
 	*/
+
 	void PlayAttackMontage();
 	UFUNCTION(BlueprintCallable)
 	void AttackEnd();

@@ -120,6 +120,9 @@ void ASlashCharacter::LookUp(float Value)
 
 void ASlashCharacter::EKeyPressed()
 {
+	UE_LOG(LogTemp, Warning, TEXT("E KEY PRESSED"));
+	UE_LOG(LogTemp, Warning, TEXT("=============================="));
+
 	AWeapon* OverlappingWeapon = Cast<AWeapon>(OverlappingItem);
 	if (OverlappingWeapon)
 	{
@@ -129,12 +132,23 @@ void ASlashCharacter::EKeyPressed()
 		EquippedWeapon = OverlappingWeapon;
 	}
 	else {
+		UE_LOG(LogTemp, Warning, TEXT("ELSE"));
+		UE_LOG(LogTemp, Warning, TEXT("=============================="));
+
 		if (CanDisarm()) {
+
+			UE_LOG(LogTemp, Warning, TEXT("CAN DISARM"));
+			UE_LOG(LogTemp, Warning, TEXT("=============================="));
+
 			PlayEquipMontage(FName("Unequip"));
 			CharacterState = ECharacterState::ECS_Unequipped;
 			ActionState = EActionState::EAS_EquippingWeapon;
 		}
 		else if (CanArm()) {
+
+			UE_LOG(LogTemp, Warning, TEXT("CAN ARM"));
+			UE_LOG(LogTemp, Warning, TEXT("=============================="));
+
 			PlayEquipMontage(FName("Equip"));
 			CharacterState = ECharacterState::ECS_EquippedOneHandedWeapon;
 			ActionState = EActionState::EAS_EquippingWeapon;
@@ -160,6 +174,16 @@ bool ASlashCharacter::CanAttack()
 
 bool ASlashCharacter::CanDisarm()
 {
+	const bool x = ActionState == EActionState::EAS_Unoccupied;
+	const bool y = CharacterState != ECharacterState::ECS_Unequipped;
+
+	UE_LOG(LogTemp, Warning, TEXT("CanDisarm ActionState: %s"), *UEnum::GetValueAsString(ActionState));
+	UE_LOG(LogTemp, Warning, TEXT("CanDisarm CharacterState: %s"), *UEnum::GetValueAsString(CharacterState));
+	//UE_LOG(LogTemp, Warning, TEXT("CanDisarm ActionState: %s"), x ? TEXT("true") : TEXT("false"));
+	//UE_LOG(LogTemp, Warning, TEXT("CanDisarm CharacterState: %s"), y ? TEXT("true") : TEXT("false"));
+	UE_LOG(LogTemp, Warning, TEXT("CanDisarm: %s"), x && y ? TEXT("true") : TEXT("false"));
+	UE_LOG(LogTemp, Warning, TEXT("=============================="));
+
 	return
 		ActionState == EActionState::EAS_Unoccupied &&
 		CharacterState != ECharacterState::ECS_Unequipped;
@@ -167,6 +191,16 @@ bool ASlashCharacter::CanDisarm()
 
 bool ASlashCharacter::CanArm()
 {
+	const bool x = ActionState == EActionState::EAS_Unoccupied;
+	const bool y = CharacterState == ECharacterState::ECS_Unequipped;
+
+	UE_LOG(LogTemp, Warning, TEXT("CanDisarm ActionState: %s"), *UEnum::GetValueAsString(ActionState));
+	UE_LOG(LogTemp, Warning, TEXT("CanDisarm CharacterState: %s"), *UEnum::GetValueAsString(CharacterState));
+	//UE_LOG(LogTemp, Warning, TEXT("CanArm ActionState %s"), x ? TEXT("true") : TEXT("false"));
+	//UE_LOG(LogTemp, Warning, TEXT("CanArm CharacterState: %s"), y ? TEXT("true") : TEXT("false"));
+	UE_LOG(LogTemp, Warning, TEXT("CanArm: %s"), x && y ? TEXT("true") : TEXT("false"));
+	UE_LOG(LogTemp, Warning, TEXT("=============================="));
+
 	return
 		ActionState == EActionState::EAS_Unoccupied &&
 		CharacterState == ECharacterState::ECS_Unequipped &&
@@ -191,6 +225,9 @@ void ASlashCharacter::Arm()
 
 void ASlashCharacter::FinishEquipping()
 {
+	UE_LOG(LogTemp, Warning, TEXT("FinishEquipping"));
+	UE_LOG(LogTemp, Warning, TEXT("=============================="));
+
 	ActionState = EActionState::EAS_Unoccupied;
 }
 
@@ -226,6 +263,9 @@ void ASlashCharacter::PlayAttackMontage()
 
 void ASlashCharacter::PlayEquipMontage(FName SectionName)
 {
+	UE_LOG(LogTemp, Warning, TEXT("PlayEquipMontage SectionName %s"), *SectionName.ToString());
+	UE_LOG(LogTemp, Warning, TEXT("=============================="));
+
 	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
 	if (AnimInstance && EquipMontage)
 	{
