@@ -74,6 +74,9 @@ void ASlashCharacter::SetWeaponCollisionEnabled(ECollisionEnabled::Type Collisio
 	if (EquippedWeapon && EquippedWeapon->GetWeaponBox())
 	{
 		EquippedWeapon->GetWeaponBox()->SetCollisionEnabled(CollisionEnabled);
+
+		// This resets actors to ignore which is used to prevent multiple actor hits per weapon swing
+		EquippedWeapon->IgnoreActors.Empty(); 
 	}
 }
 

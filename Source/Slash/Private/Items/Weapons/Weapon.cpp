@@ -96,6 +96,12 @@ void AWeapon::OnBoxOverlap(
 
 	TArray<AActor*> ActorsToIgnore;
 	ActorsToIgnore.Add(this);
+
+	for (AActor* Actor : IgnoreActors)
+	{
+		ActorsToIgnore.AddUnique(Actor);
+	}
+
 	FHitResult BoxHit;
 
 	UKismetSystemLibrary::BoxTraceSingle(
@@ -144,6 +150,8 @@ void AWeapon::OnBoxOverlap(
 		{
 			HitInterface->GetHit(BoxHit.ImpactPoint);
 		}
+
+		IgnoreActors.AddUnique(BoxHit.GetActor());
 	}
 }
 
