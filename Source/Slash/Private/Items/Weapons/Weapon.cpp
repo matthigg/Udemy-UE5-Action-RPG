@@ -153,6 +153,8 @@ void AWeapon::OnBoxOverlap(
 		}
 
 		IgnoreActors.AddUnique(BoxHit.GetActor());
+			
+		CreateFields(BoxHit.ImpactPoint);
 	}
 }
 

@@ -56,6 +56,9 @@ protected:
 		const FHitResult& SweepResult
 	);
 
+	UFUNCTION(BlueprintImplementableEvent)
+	void CreateFields(const FVector& FieldLocation);
+
 private:
 	// Generally speaking, EditAnywhere is for variables and VisibleAnywhere is for components
 	UPROPERTY(EditAnywhere, Category = "Weapon Properties")
