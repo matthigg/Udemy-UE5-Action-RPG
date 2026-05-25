@@ -53,7 +53,7 @@ protected:
 		bool bFromSweep,
 		// Here we're passing in SweepResult by reference to avoid having to make another copy of it, which happens automatically
 		// when passing objects into functions, but at the same time we want to avoid modifying any values. Setting the input
-		// parameter to const is a trick you can use to avoid accidentally modifying the incoming reference argument/object.
+		// parameter to const is a trick you can use to avoid accidentally modifying the incoming referenced argument/object.
 		const FHitResult& SweepResult
 	);
 

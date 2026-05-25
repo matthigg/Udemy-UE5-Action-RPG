@@ -3,6 +3,8 @@
 
 #include "Breakable/BreakableActor.h"
 #include "GeometryCollection/GeometryCollectionComponent.h"
+#include "Items/Treasure.h"
+#include "Components/CapsuleComponent.h"
 
 ABreakableActor::ABreakableActor()
 {
@@ -10,9 +12,14 @@ ABreakableActor::ABreakableActor()
 
 	GeometryCollection = CreateDefaultSubobject<UGeometryCollectionComponent>(TEXT("GeometryCollection"));
 	SetRootComponent(GeometryCollection);
-	//GeometryCollection->SetCollisionObjectType(ECollisionChannel::ECC_WorldDynamic);
 	GeometryCollection->SetGenerateOverlapEvents(true);
 	GeometryCollection->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
+	GeometryCollection->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Ignore);
+
+	Capsule = CreateDefaultSubobject<UCapsuleComponent>(TEXT("Capsule"));
+	Capsule->SetupAttachment(GetRootComponent());
+	Capsule->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+	Capsule->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Block);
 }
 
 void ABreakableActor::BeginPlay()
@@ -31,5 +38,14 @@ void ABreakableActor::GetHit_Implementation(const FVector& ImpactPoint)
 {
 	//UE_LOG(LogTemp, Warning, TEXT("GetHit() called in BreakableActor.cpp"));
 	//GeometryCollection->ApplyRadiusDamage(10.f, ImpactPoint, 100.f, 10000.f, false);
+
+	//GetWorld()->SpawnActor();
+
+	UWorld* World = GetWorld();
+	if (World && TreasureClass) {
+		FVector Location = GetActorLocation();
+		Location.Z += 75.f;
+		World->SpawnActor<ATreasure>(TreasureClass, Location, GetActorRotation());
+	}
 }
 

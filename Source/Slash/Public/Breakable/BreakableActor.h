@@ -24,9 +24,18 @@ protected:
 
 	virtual void BeginPlay() override;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	UGeometryCollectionComponent* GeometryCollection;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	class UCapsuleComponent* Capsule;
+
 private:
 
-	UPROPERTY(VisibleAnywhere)
-	UGeometryCollectionComponent* GeometryCollection;
+	UPROPERTY(EditAnywhere, Category = "Breakable Properties")
+	// You can actually forward declare the ATreasure class here since we're only using a pointer to it, 
+	// and not accessing any of its members in this header file. This can help reduce compile times by 
+	// avoiding unnecessary includes.
+	TSubclassOf<class ATreasure> TreasureClass;
 
 };
