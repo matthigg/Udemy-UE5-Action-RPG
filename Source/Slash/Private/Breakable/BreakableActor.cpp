@@ -36,16 +36,16 @@ void ABreakableActor::Tick(float DeltaTime)
 
 void ABreakableActor::GetHit_Implementation(const FVector& ImpactPoint)
 {
-	//UE_LOG(LogTemp, Warning, TEXT("GetHit() called in BreakableActor.cpp"));
-	//GeometryCollection->ApplyRadiusDamage(10.f, ImpactPoint, 100.f, 10000.f, false);
-
-	//GetWorld()->SpawnActor();
+	if (bHasBroken) return;
+	bHasBroken = true;
 
 	UWorld* World = GetWorld();
-	if (World && TreasureClass) {
+	if (World && TreasureClasses.Num() > 0) {
 		FVector Location = GetActorLocation();
 		Location.Z += 75.f;
-		World->SpawnActor<ATreasure>(TreasureClass, Location, GetActorRotation());
+
+		int32 Selection = FMath::RandRange(0, TreasureClasses.Num() - 1);
+		World->SpawnActor<ATreasure>(TreasureClasses[Selection], Location, GetActorRotation());
 	}
 }
 

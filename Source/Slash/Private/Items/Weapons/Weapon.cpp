@@ -8,6 +8,7 @@
 #include "Components/BoxComponent.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Interfaces/HitInterface.h"
+#include "NiagaraComponent.h"
 
 AWeapon::AWeapon()
 {
@@ -43,10 +44,17 @@ void AWeapon::Equip(USceneComponent* InParent, FName InSocketName)
 			ItemMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 			ItemMesh->SetCollisionResponseToAllChannels(ECR_Ignore);
 		}
+
 		if (SphereCPP)
 		{
 			SphereCPP->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 			SphereCPP->SetCollisionResponseToAllChannels(ECR_Ignore);
+		}
+
+		if (EmbersEffect)
+		{
+			EmbersEffect->Deactivate();
+			EmbersEffect->SetAutoActivate(false);
 		}
 
 		AttachMeshToSocket(InParent, InSocketName);

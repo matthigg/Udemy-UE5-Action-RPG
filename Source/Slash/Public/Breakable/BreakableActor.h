@@ -36,6 +36,10 @@ private:
 	// You can actually forward declare the ATreasure class here since we're only using a pointer to it, 
 	// and not accessing any of its members in this header file. This can help reduce compile times by 
 	// avoiding unnecessary includes.
-	TSubclassOf<class ATreasure> TreasureClass;
+	//TSubclassOf<class ATreasure> TreasureClass;
+
+	TArray<TSubclassOf<class ATreasure>> TreasureClasses;
+
+	bool bHasBroken = false;
 
 };

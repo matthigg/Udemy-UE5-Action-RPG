@@ -7,6 +7,8 @@
 #include "Slash/DebugMacros.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Kismet/GameplayStatics.h"
+#include "Components/AttributeComponent.h"
+#include "Components/WidgetComponent.h"
 
 // Sets default values
 AEnemy::AEnemy()
@@ -23,6 +25,10 @@ AEnemy::AEnemy()
 	GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
 
 	//GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Visibility, ECollisionResponse::ECR_Ignore);
+
+	Attributes = CreateDefaultSubobject<UAttributeComponent>(TEXT("Attributes"));
+	HealthBarWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("HealthBar"));
+	HealthBarWidget->SetupAttachment(GetRootComponent());
 
 }
 

@@ -76,6 +76,9 @@ protected:
 
 	EItemState ItemState = EItemState::EIS_Hovering;
 
+	UPROPERTY(EditAnywhere)
+	class UNiagaraComponent* EmbersEffect;
+
 private:
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	float RunningTime;

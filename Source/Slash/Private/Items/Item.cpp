@@ -5,6 +5,7 @@
 #include "Slash/DebugMacros.h"
 #include "Components/SphereComponent.h"
 #include "Characters/SlashCharacter.h"
+#include "NiagaraComponent.h"
 
 // Sets default values
 AItem::AItem()
@@ -32,19 +33,22 @@ AItem::AItem()
 	RootComponent = ItemMesh;
 
 	// FIX: Explicitly set the component mobility to Movable in C++
-	ItemMesh->SetMobility(EComponentMobility::Movable);
+	//ItemMesh->SetMobility(EComponentMobility::Movable);
 
 	SphereCPP = CreateDefaultSubobject<USphereComponent>(TEXT("SphereCPP"));
 	SphereCPP->SetupAttachment(GetRootComponent());
 
 	// Fix parenting mobility just to be safe
-	SphereCPP->SetMobility(EComponentMobility::Movable);
+	//SphereCPP->SetMobility(EComponentMobility::Movable);
 
 	// Ensure the sphere is set to generate overlap events
-	SphereCPP->SetGenerateOverlapEvents(true);
+	//SphereCPP->SetGenerateOverlapEvents(true);
 
 	// Set the collision profile to overlap all objects by default
-	SphereCPP->SetCollisionProfileName(TEXT("OverlapAllDynamic"));
+	//SphereCPP->SetCollisionProfileName(TEXT("OverlapAllDynamic"));
+
+	EmbersEffect = CreateDefaultSubobject<UNiagaraComponent>(TEXT("Embers"));
+	EmbersEffect->SetupAttachment(GetRootComponent());
 }
 
 // Called when the game starts or when spawned
@@ -129,8 +133,8 @@ void AItem::Tick(float DeltaTime)
 
 	if (ItemState == EItemState::EIS_Hovering)
 	{
-		//const float Z = TransformedSinPure();
-		//AddActorWorldOffset(FVector(0.f, 0.f, Z));
+		const float Z = TransformedSinPure();
+		AddActorWorldOffset(FVector(0.f, 0.f, Z));
 	}
 }
 
