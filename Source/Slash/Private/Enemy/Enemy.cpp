@@ -33,7 +33,7 @@ void AEnemy::BeginPlay()
 	
 }
 
-void AEnemy::GetHit(const FVector& ImpactPoint)
+void AEnemy::GetHit_Implementation(const FVector& ImpactPoint)
 {
 	UE_LOG(LogTemp, Warning, TEXT("***** GetHit *****"));
 	UE_LOG(LogTemp, Warning, TEXT("======================================"));

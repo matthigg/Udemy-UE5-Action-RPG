@@ -27,7 +27,7 @@ void ABreakableActor::Tick(float DeltaTime)
 
 }
 
-void ABreakableActor::GetHit(const FVector& ImpactPoint)
+void ABreakableActor::GetHit_Implementation(const FVector& ImpactPoint)
 {
 	//UE_LOG(LogTemp, Warning, TEXT("GetHit() called in BreakableActor.cpp"));
 	//GeometryCollection->ApplyRadiusDamage(10.f, ImpactPoint, 100.f, 10000.f, false);

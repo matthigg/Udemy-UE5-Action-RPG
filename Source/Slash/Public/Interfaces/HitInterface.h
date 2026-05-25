@@ -32,5 +32,21 @@ public:
 	// We're also creating a const parameter that takes a reference/pointer input argument, and this does 2
 	// things 1) Prevents changing/modifying the input argument, and 2) Passes a reference/address to the
 	// argument instead of the entire object.
-	virtual void GetHit(const FVector& ImpactPoint) = 0;
+	//virtual void GetHit(const FVector& ImpactPoint) = 0;
+
+	// Blueprint native events allow us to have both C++ and blueprint functionality. While GetHit is not
+	// marked as "virtual" it is still overridable, but it has to be implemented in a certain way. When
+	// implementing this function in a class that inherits this interface, e.g. Enemy.cpp, we have to implement
+	// the function with the _Implementation suffix, e.g. void AEnemy::GetHit_Implementation(const FVector& ImpactPoint). 
+	// This is because the function is marked as a BlueprintNativeEvent, which means it can be implemented in 
+	// both C++ and blueprints. If we were to implement this function without the _Implementation suffix, it would 
+	// not be recognized as an override of the interface function, and we would get a compiler error.
+
+	// Additionally we have to prefix calling the function with Execute_ when calling it from blueprints, 
+	// e.g. Execute_GetHit(...). This is because the function is marked as a BlueprintNativeEvent, which means 
+	// it can be called from both C++ and blueprints. If we were to call this function without the Execute_ prefix, 
+	// it would not be recognized as a valid function call in blueprints, and we would get a compiler error.
+	UFUNCTION(BlueprintNativeEvent)
+	void GetHit(const FVector& ImpactPoint);
+
 };
