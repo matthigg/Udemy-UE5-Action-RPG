@@ -38,7 +38,7 @@ void AEnemy::GetHit(const FVector& ImpactPoint)
 	UE_LOG(LogTemp, Warning, TEXT("***** GetHit *****"));
 	UE_LOG(LogTemp, Warning, TEXT("======================================"));
 
-	DRAW_SPHERE_COLOR(ImpactPoint, FColor::Magenta);
+	//DRAW_SPHERE_COLOR(ImpactPoint, FColor::Magenta);
 
 	DirectionalHitReact(ImpactPoint);
 
@@ -48,6 +48,20 @@ void AEnemy::GetHit(const FVector& ImpactPoint)
 			this,
 			HitSound,
 			ImpactPoint
+		);
+	}
+
+	if (HitParticles)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Spawning hit particles at location: %s"), *ImpactPoint.ToString());
+		UE_LOG(LogTemp, Warning, TEXT("=============================================="));
+
+		UGameplayStatics::SpawnEmitterAtLocation(
+			this,
+			HitParticles,
+			ImpactPoint,
+			FRotator(0.f),
+			true
 		);
 	}
 
@@ -112,14 +126,14 @@ void AEnemy::DirectionalHitReact(const FVector& ImpactPoint)
 
 	PlayHitReactMontage(Section);
 
-	if (GEngine)
-	{
-		GEngine->AddOnScreenDebugMessage(1, 5.f, FColor::Green, FString::Printf(TEXT("Theta: %f"), Theta));
-	}
+	//if (GEngine)
+	//{
+	//	GEngine->AddOnScreenDebugMessage(1, 5.f, FColor::Green, FString::Printf(TEXT("Theta: %f"), Theta));
+	//}
 
-	UKismetSystemLibrary::DrawDebugArrow(this, GetActorLocation(), GetActorLocation() + Forward * 60.f, 5.f, FColor::Red, 5.f);
-	UKismetSystemLibrary::DrawDebugArrow(this, GetActorLocation(), GetActorLocation() + ToHit * 60.f, 5.f, FColor::Green, 5.f);
-	UKismetSystemLibrary::DrawDebugArrow(this, GetActorLocation(), GetActorLocation() + CrossProduct * 100.f, 5.f, FColor::Blue, 5.f);
+	//UKismetSystemLibrary::DrawDebugArrow(this, GetActorLocation(), GetActorLocation() + Forward * 60.f, 5.f, FColor::Red, 5.f);
+	//UKismetSystemLibrary::DrawDebugArrow(this, GetActorLocation(), GetActorLocation() + ToHit * 60.f, 5.f, FColor::Green, 5.f);
+	//UKismetSystemLibrary::DrawDebugArrow(this, GetActorLocation(), GetActorLocation() + CrossProduct * 100.f, 5.f, FColor::Blue, 5.f);
 }
 
 void AEnemy::PlayHitReactMontage(const FName& SectionName)
