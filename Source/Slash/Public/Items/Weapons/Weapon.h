@@ -18,8 +18,9 @@ class SLASH_API AWeapon : public AItem
 	GENERATED_BODY()
 
 public:
+
 	AWeapon();
-	void Equip(USceneComponent* InParent, FName InSocketName);
+	void Equip(USceneComponent* InParent, FName InSocketName, AActor* NewOwner, APawn* NewInstigator);
 	void AttachMeshToSocket(USceneComponent* InParent, const FName& InSocketName);
 	TArray<AActor*> IgnoreActors;
 
@@ -60,6 +61,7 @@ protected:
 	void CreateFields(const FVector& FieldLocation);
 
 private:
+
 	// Generally speaking, EditAnywhere is for variables and VisibleAnywhere is for components
 	UPROPERTY(EditAnywhere, Category = "Weapon Properties")
 	USoundBase* EquipSound;
@@ -73,7 +75,11 @@ private:
 	UPROPERTY(VisibleAnywhere)
 	USceneComponent* BoxTraceEndCPP;
 
+	UPROPERTY(EditAnywhere, Category = "Weapon Properties")
+	float Damage = 50.f;
+
 public:
+
 	FORCEINLINE UBoxComponent* GetWeaponBox() const { return WeaponBox; }
 
 	

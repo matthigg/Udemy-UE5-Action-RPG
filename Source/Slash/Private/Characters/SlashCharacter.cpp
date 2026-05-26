@@ -68,8 +68,8 @@ void ASlashCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
 void ASlashCharacter::SetWeaponCollisionEnabled(ECollisionEnabled::Type CollisionEnabled)
 {
 	// This explicitly calls the engine's reflection system for this specific enum type
-	UE_LOG(LogTemp, Warning, TEXT("CollisionEnabled: %s"), *StaticEnum<ECollisionEnabled::Type>()->GetValueAsString(CollisionEnabled));
-	UE_LOG(LogTemp, Warning, TEXT("================================"));
+	//UE_LOG(LogTemp, Warning, TEXT("CollisionEnabled: %s"), *StaticEnum<ECollisionEnabled::Type>()->GetValueAsString(CollisionEnabled));
+	//UE_LOG(LogTemp, Warning, TEXT("================================"));
 
 	if (EquippedWeapon && EquippedWeapon->GetWeaponBox())
 	{
@@ -127,25 +127,25 @@ void ASlashCharacter::LookUp(float Value)
 
 void ASlashCharacter::EKeyPressed()
 {
-	UE_LOG(LogTemp, Warning, TEXT("E KEY PRESSED"));
-	UE_LOG(LogTemp, Warning, TEXT("=============================="));
+	//UE_LOG(LogTemp, Warning, TEXT("E KEY PRESSED"));
+	//UE_LOG(LogTemp, Warning, TEXT("=============================="));
 
 	AWeapon* OverlappingWeapon = Cast<AWeapon>(OverlappingItem);
 	if (OverlappingWeapon)
 	{
-		OverlappingWeapon->Equip(GetMesh(), FName("RightHandSocket"));
+		OverlappingWeapon->Equip(GetMesh(), FName("RightHandSocket"), this, this);
 		CharacterState = ECharacterState::ECS_EquippedOneHandedWeapon;
 		OverlappingItem = nullptr;
 		EquippedWeapon = OverlappingWeapon;
 	}
 	else {
-		UE_LOG(LogTemp, Warning, TEXT("ELSE"));
-		UE_LOG(LogTemp, Warning, TEXT("=============================="));
+		//UE_LOG(LogTemp, Warning, TEXT("ELSE"));
+		//UE_LOG(LogTemp, Warning, TEXT("=============================="));
 
 		if (CanDisarm()) {
 
-			UE_LOG(LogTemp, Warning, TEXT("CAN DISARM"));
-			UE_LOG(LogTemp, Warning, TEXT("=============================="));
+			//UE_LOG(LogTemp, Warning, TEXT("CAN DISARM"));
+			//UE_LOG(LogTemp, Warning, TEXT("=============================="));
 
 			PlayEquipMontage(FName("Unequip"));
 			CharacterState = ECharacterState::ECS_Unequipped;
@@ -153,8 +153,8 @@ void ASlashCharacter::EKeyPressed()
 		}
 		else if (CanArm()) {
 
-			UE_LOG(LogTemp, Warning, TEXT("CAN ARM"));
-			UE_LOG(LogTemp, Warning, TEXT("=============================="));
+			//UE_LOG(LogTemp, Warning, TEXT("CAN ARM"));
+			//UE_LOG(LogTemp, Warning, TEXT("=============================="));
 
 			PlayEquipMontage(FName("Equip"));
 			CharacterState = ECharacterState::ECS_EquippedOneHandedWeapon;

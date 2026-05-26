@@ -8,7 +8,7 @@
 #include "Kismet/KismetSystemLibrary.h"
 #include "Kismet/GameplayStatics.h"
 #include "Components/AttributeComponent.h"
-#include "Components/WidgetComponent.h"
+#include "HUD/HealthBarComponent.h"
 
 // Sets default values
 AEnemy::AEnemy()
@@ -27,7 +27,7 @@ AEnemy::AEnemy()
 	//GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Visibility, ECollisionResponse::ECR_Ignore);
 
 	Attributes = CreateDefaultSubobject<UAttributeComponent>(TEXT("Attributes"));
-	HealthBarWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("HealthBar"));
+	HealthBarWidget = CreateDefaultSubobject<UHealthBarComponent>(TEXT("HealthBar"));
 	HealthBarWidget->SetupAttachment(GetRootComponent());
 
 }
@@ -36,7 +36,61 @@ AEnemy::AEnemy()
 void AEnemy::BeginPlay()
 {
 	Super::BeginPlay();
+
+	if (HealthBarWidget)
+	{
+		HealthBarWidget->SetVisibility(false);
+	}
 	
+}
+
+void AEnemy::Die()
+{
+	UE_LOG(LogTemp, Warning, TEXT("***** Die *****"));
+	UE_LOG(LogTemp, Warning, TEXT("======================================"))
+
+	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+	if (AnimInstance && DeathMontage)
+	{
+		//UE_LOG(LogTemp, Warning, TEXT("SUCCESS: AnimInstance and DeathMontage are valid! Playing now."));
+		//UE_LOG(LogTemp, Warning, TEXT("======================================"));
+
+		// Randomly select which attack animation to play
+		const int32 Selection = FMath::RandRange(0, 2);
+		FName SectionName = FName();
+		switch (Selection)
+		{
+		case 0:
+			SectionName = FName("Death1");
+			DeathPose = EDeathPose::EDP_Death1;
+			break;
+		case 1:
+			SectionName = FName("Death2");
+			DeathPose = EDeathPose::EDP_Death2;
+			break;
+		case 2:
+			SectionName = FName("Death3");
+			DeathPose = EDeathPose::EDP_Death3;
+
+			break;
+		default:
+			break;
+		}
+
+		UE_LOG(LogTemp, Warning, TEXT("Selected DeathPose: %s"), *UEnum::GetValueAsString(DeathPose))
+		UE_LOG(LogTemp, Warning, TEXT("======================================"))
+
+		AnimInstance->Montage_Play(DeathMontage);
+		AnimInstance->Montage_JumpToSection(SectionName, DeathMontage);
+	}
+
+	if (HealthBarWidget)
+	{
+		HealthBarWidget->SetVisibility(false);
+	}
+
+	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	SetLifeSpan(3.f);
 }
 
 void AEnemy::GetHit_Implementation(const FVector& ImpactPoint)
@@ -46,7 +100,19 @@ void AEnemy::GetHit_Implementation(const FVector& ImpactPoint)
 
 	//DRAW_SPHERE_COLOR(ImpactPoint, FColor::Magenta);
 
-	DirectionalHitReact(ImpactPoint);
+	if (HealthBarWidget)
+	{
+		HealthBarWidget->SetVisibility(true);
+	}
+
+	if (Attributes && Attributes->IsAlive())
+	{
+		DirectionalHitReact(ImpactPoint);
+	}
+	else
+	{
+		Die();
+	}
 
 	if (HitSound)
 	{
@@ -59,8 +125,8 @@ void AEnemy::GetHit_Implementation(const FVector& ImpactPoint)
 
 	if (HitParticles)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Spawning hit particles at location: %s"), *ImpactPoint.ToString());
-		UE_LOG(LogTemp, Warning, TEXT("=============================================="));
+		//UE_LOG(LogTemp, Warning, TEXT("Spawning hit particles at location: %s"), *ImpactPoint.ToString());
+		//UE_LOG(LogTemp, Warning, TEXT("=============================================="));
 
 		UGameplayStatics::SpawnEmitterAtLocation(
 			this,
@@ -142,23 +208,41 @@ void AEnemy::DirectionalHitReact(const FVector& ImpactPoint)
 	//UKismetSystemLibrary::DrawDebugArrow(this, GetActorLocation(), GetActorLocation() + CrossProduct * 100.f, 5.f, FColor::Blue, 5.f);
 }
 
+float AEnemy::TakeDamage(
+	float DamageAmount, 
+	FDamageEvent const& DamageEvent, 
+	AController* EventInstigator, 
+	AActor* DamageCauser
+)
+{
+	if (Attributes && HealthBarWidget)
+	{
+		Attributes->ReceiveDamage(DamageAmount);
+		HealthBarWidget->SetHealthPercent(Attributes->GetHealthPercent());
+	}
+
+	CombatTarget = EventInstigator->GetPawn();
+
+	return DamageAmount;
+}
+
 void AEnemy::PlayHitReactMontage(const FName& SectionName)
 {
-	UE_LOG(LogTemp, Warning, TEXT("PlayHitReactMontage SectionName: %s"), *SectionName.ToString());
-	UE_LOG(LogTemp, Warning, TEXT("=============================="));
+	//UE_LOG(LogTemp, Warning, TEXT("PlayHitReactMontage SectionName: %s"), *SectionName.ToString());
+	//UE_LOG(LogTemp, Warning, TEXT("=============================="));
 
 	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
 	if (AnimInstance && HitReactMontage)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("SUCCESS: AnimInstance and HitReactMontage are valid! Playing now."));
+		//UE_LOG(LogTemp, Warning, TEXT("SUCCESS: AnimInstance and HitReactMontage are valid! Playing now."));
 		AnimInstance->Montage_Play(HitReactMontage);
 		AnimInstance->Montage_JumpToSection(SectionName, HitReactMontage);
 	}
 	else
 	{
-		UE_LOG(LogTemp, Error, TEXT("ERROR: AnimInstance is %s | HitReactMontage is %s"),
-		AnimInstance ? TEXT("Valid") : TEXT("NULL"),
-		HitReactMontage ? TEXT("Valid") : TEXT("NULL"));
+		//UE_LOG(LogTemp, Error, TEXT("ERROR: AnimInstance is %s | HitReactMontage is %s"),
+		//AnimInstance ? TEXT("Valid") : TEXT("NULL"),
+		//HitReactMontage ? TEXT("Valid") : TEXT("NULL"));
 	}
 }
 
@@ -167,6 +251,18 @@ void AEnemy::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	if (CombatTarget)
+	{
+		const double DistanceToTarget = (CombatTarget->GetActorLocation() - GetActorLocation()).Size();
+		if (DistanceToTarget > CombatRadius)
+		{
+			CombatTarget = nullptr;
+			if (HealthBarWidget)
+			{
+				HealthBarWidget->SetVisibility(false);
+			}
+		}
+	}
 }
 
 // Called to bind functionality to input

@@ -32,39 +32,41 @@ void AWeapon::BeginPlay()
 	WeaponBox->OnComponentBeginOverlap.AddDynamic(this, &AWeapon::OnBoxOverlap);
 }
 
-void AWeapon::Equip(USceneComponent* InParent, FName InSocketName)
+void AWeapon::Equip(
+	USceneComponent* InParent, 
+	FName InSocketName, 
+	AActor* NewOwner, APawn* 
+	NewInstigator
+)
 {
-	//ASlashCharacter* SlashCharacter = Cast<ASlashCharacter>(OtherActor);
-	//if (SlashCharacter)
-	//{
+	SetOwner(NewOwner);
+	SetInstigator(NewInstigator);
 
-		// 1. Turn off physics collisions so the player doesn't get stuck
-		if (ItemMesh)
-		{
-			ItemMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-			ItemMesh->SetCollisionResponseToAllChannels(ECR_Ignore);
-		}
+	// Turn off physics collisions so the player doesn't get stuck
+	if (ItemMesh)
+	{
+		ItemMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		ItemMesh->SetCollisionResponseToAllChannels(ECR_Ignore);
+	}
 
-		if (SphereCPP)
-		{
-			SphereCPP->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-			SphereCPP->SetCollisionResponseToAllChannels(ECR_Ignore);
-		}
+	if (SphereCPP)
+	{
+		SphereCPP->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		SphereCPP->SetCollisionResponseToAllChannels(ECR_Ignore);
+	}
 
-		if (EmbersEffect)
-		{
-			EmbersEffect->Deactivate();
-			EmbersEffect->SetAutoActivate(false);
-		}
+	if (EmbersEffect)
+	{
+		EmbersEffect->Deactivate();
+		EmbersEffect->SetAutoActivate(false);
+	}
 
-		AttachMeshToSocket(InParent, InSocketName);
-		ItemState = EItemState::EIS_Equipped;
-		if (EquipSound)
-		{
-			UGameplayStatics::PlaySoundAtLocation(this, EquipSound, GetActorLocation());
-		}
-
-	//}
+	AttachMeshToSocket(InParent, InSocketName);
+	ItemState = EItemState::EIS_Equipped;
+	if (EquipSound)
+	{
+		UGameplayStatics::PlaySoundAtLocation(this, EquipSound, GetActorLocation());
+	}
 }
 
 void AWeapon::AttachMeshToSocket(USceneComponent* InParent, const FName& InSocketName)
@@ -96,8 +98,8 @@ void AWeapon::OnBoxOverlap(
 	const FHitResult& SweepResult
 )
 {
-	UE_LOG(LogTemp, Warning, TEXT("OnBoxOverlap"));
-	UE_LOG(LogTemp, Warning, TEXT("======================================"));
+	//UE_LOG(LogTemp, Warning, TEXT("OnBoxOverlap"));
+	//UE_LOG(LogTemp, Warning, TEXT("======================================"));
 
 	const FVector Start = BoxTraceStartCPP->GetComponentLocation();
 	const FVector End = BoxTraceEndCPP->GetComponentLocation();
@@ -133,14 +135,14 @@ void AWeapon::OnBoxOverlap(
 	if (BoxHit.bBlockingHit)
 	{
 		// Logs general hit info: bone name hit, component hit, and impact location vectors
-		UE_LOG(LogTemp, Warning, TEXT("BoxHit Registered! Component: %s | Bone: %s | Impact Point: %s"),
-			*BoxHit.GetComponent()->GetName(),
-			*BoxHit.BoneName.ToString(),
-			*BoxHit.ImpactPoint.ToString());
+		//UE_LOG(LogTemp, Warning, TEXT("BoxHit Registered! Component: %s | Bone: %s | Impact Point: %s"),
+		//	*BoxHit.GetComponent()->GetName(),
+		//	*BoxHit.BoneName.ToString(),
+		//	*BoxHit.ImpactPoint.ToString());
 	}
 	else
 	{
-		UE_LOG(LogTemp, Log, TEXT("BoxTrace missed everything."));
+		//UE_LOG(LogTemp, Log, TEXT("BoxTrace missed everything."));
 	}
 
 	// ==========================================
@@ -151,8 +153,17 @@ void AWeapon::OnBoxOverlap(
 		// Safely extract the hit actor's name
 		FString HitActorName = BoxHit.GetActor()->GetName();
 
-		UE_LOG(LogTemp, Warning, TEXT("BoxHit.GetActor() Found: %s"), *HitActorName);
-		UE_LOG(LogTemp, Warning, TEXT("==============================="));
+		//UE_LOG(LogTemp, Warning, TEXT("BoxHit.GetActor() Found: %s"), *HitActorName);
+		//UE_LOG(LogTemp, Warning, TEXT("==============================="));
+
+		// Apply Damage
+		UGameplayStatics::ApplyDamage(
+			BoxHit.GetActor(),
+			Damage,
+			GetInstigator()->GetController(),
+			this,
+			UDamageType::StaticClass()
+		);
 
 		IHitInterface* HitInterface = Cast<IHitInterface>(BoxHit.GetActor());
 		if (HitInterface)
@@ -160,9 +171,7 @@ void AWeapon::OnBoxOverlap(
 			//HitInterface->GetHit(BoxHit.ImpactPoint);
 			HitInterface->Execute_GetHit(BoxHit.GetActor(), BoxHit.ImpactPoint);
 		}
-
 		IgnoreActors.AddUnique(BoxHit.GetActor());
-			
 		CreateFields(BoxHit.ImpactPoint);
 	}
 }
