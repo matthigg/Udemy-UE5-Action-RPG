@@ -14,6 +14,7 @@
 #include "AIController.h"
 #include "Runtime/AIModule/Classes/AIController.h"
 #include "NavigationPath.h"
+#include "Items/Weapons/Weapon.h"
 #include "Perception/PawnSensingComponent.h"
 
 
@@ -67,6 +68,14 @@ void AEnemy::BeginPlay()
 	if (PawnSensingCPP)
 	{
 		PawnSensingCPP->OnSeePawn.AddDynamic(this, &AEnemy::PawnSeen);
+	}
+
+	UWorld* World = GetWorld();
+	if (World)
+	{
+		AWeapon* DefaultWeapon = World->SpawnActor<AWeapon>(WeaponClass);
+		DefaultWeapon->Equip(GetMesh(), FName("RightHandSocket"), this, this);
+		EquippedWeapon = DefaultWeapon;
 	}
 }
 
@@ -189,6 +198,14 @@ float AEnemy::TakeDamage(
 	GetCharacterMovement()->MaxWalkSpeed = 300.f;
 
 	return DamageAmount;
+}
+
+void AEnemy::Destroyed()
+{
+	if (EquippedWeapon)
+	{
+		EquippedWeapon->Destroy();
+	}
 }
 
 bool AEnemy::InTargetRange(AActor* Target, double Radius)

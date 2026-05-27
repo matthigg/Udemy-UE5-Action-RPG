@@ -21,6 +21,9 @@ AItem::AItem()
 	// in code.
 	ItemMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("ItemMeshComponent"));
 
+	ItemMesh->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+	ItemMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
 	// This reassigns ItemMesh to the root component of the actor. The root component is the top-level component in
 	// the component hierarchy of an actor.
 	//
