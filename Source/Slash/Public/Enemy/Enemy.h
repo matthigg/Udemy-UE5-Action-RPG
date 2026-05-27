@@ -3,20 +3,17 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/Character.h"
-#include "Interfaces/HitInterface.h" // Need to include this since we're inheriting from it
+#include "Characters/BaseCharacter.h"
 #include "Characters/CharacterTypes.h"
 #include "Perception/PawnSensingComponent.h"
 #include "Enemy.generated.h"
 
-class UAnimMontage;
-class UAttributeComponent;
-class UWidgetComponent;
+//class UWidgetComponent;
 class UHealthBarComponent;
 class UPawnSensingComponent;
 
 UCLASS()
-class SLASH_API AEnemy : public ACharacter, public IHitInterface
+class SLASH_API AEnemy : public ABaseCharacter
 {
 	GENERATED_BODY()
 
@@ -28,8 +25,6 @@ public:
 	void CheckCombatTarget();
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	virtual void GetHit_Implementation(const FVector& ImpactPoint) override;
-
-	void DirectionalHitReact(const FVector& ImpactPoint);
 
 	virtual float TakeDamage(
 		float DamageAmount,
@@ -48,13 +43,7 @@ public:
 protected:
 
 	virtual void BeginPlay() override;
-	void Die();
-
-	/**
-	* Play montage functions
-	*/
-
-	void PlayHitReactMontage(const FName& SectionName);
+	virtual void Die() override;
 
 	//virtual void PossessedBy(AController* NewController) override;
 
@@ -76,32 +65,16 @@ private:
 	UPawnSensingComponent* PawnSensingCPP;
 
 	UPROPERTY(VisibleAnywhere)
-	UAttributeComponent* Attributes;
-
-	UPROPERTY(VisibleAnywhere)
 	UHealthBarComponent* HealthBarWidget;
-
-	/**
-	* Animation montages
-	*/
-
-	UPROPERTY(EditDefaultsOnly, Category = "Montages")
-	UAnimMontage* HitReactMontage;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Montages")
-	UAnimMontage* DeathMontage;
-
-	UPROPERTY(EditAnywhere, Category = "Sounds")
-	USoundBase* HitSound;
-
-	UPROPERTY(EditAnywhere, Category = "VisualEffects")
-	UParticleSystem* HitParticles;
 
 	UPROPERTY()
 	AActor* CombatTarget;
 
 	UPROPERTY(EditAnywhere)
 	double CombatRadius = 500.f;
+
+	UPROPERTY(EditAnywhere)
+	double AttackRadius = 140.f;
 
 	/**
 	* Navigation
@@ -123,4 +96,6 @@ private:
 
 	FTimerHandle PatrolTimer;
 	void PatrolTimerFinished();
+
+	EEnemyState EnemyState = EEnemyState::EES_Patrolling;
 };

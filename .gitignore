@@ -371,9 +371,12 @@ Saved/
 # Giant source files
 Assets/
 Content/AncientContent/
-Content/ParagonMinions/
-Content/MedievalDungeon/
 Content/AncientTreasures/
+Content/Fab/
+Content/MedievalDungeon/
+Content/ParagonMinions/
+Content/Stylized_Dark_Sword/
+Content/Weapon_Pack/
 
 # Visual Studio files
 *.sln

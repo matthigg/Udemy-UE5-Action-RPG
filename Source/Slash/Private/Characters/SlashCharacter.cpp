@@ -6,10 +6,8 @@
 #include "Camera/CameraComponent.h"
 #include "GameFramework/CharactermovementComponent.h"
 #include "GroomComponent.h"
-#include "Items/Item.h"
 #include "Items/Weapons/Weapon.h"
 #include "Animation/AnimMontage.h"
-#include "Components/BoxComponent.h"
 
 ASlashCharacter::ASlashCharacter()
 {
@@ -42,6 +40,9 @@ ASlashCharacter::ASlashCharacter()
 void ASlashCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+
+	// This tag is used in Enemy.cpp via SeenPawn->ActorHasTag(FName("Echo")
+	Tags.Add(FName("Echo"));
 	
 }
 
@@ -63,21 +64,6 @@ void ASlashCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
 	PlayerInputComponent->BindAction(FName("Equip"), IE_Pressed, this, &ASlashCharacter::EKeyPressed);
 	PlayerInputComponent->BindAction(FName("Attack"), IE_Pressed, this, &ASlashCharacter::Attack);
 
-}
-
-void ASlashCharacter::SetWeaponCollisionEnabled(ECollisionEnabled::Type CollisionEnabled)
-{
-	// This explicitly calls the engine's reflection system for this specific enum type
-	//UE_LOG(LogTemp, Warning, TEXT("CollisionEnabled: %s"), *StaticEnum<ECollisionEnabled::Type>()->GetValueAsString(CollisionEnabled));
-	//UE_LOG(LogTemp, Warning, TEXT("================================"));
-
-	if (EquippedWeapon && EquippedWeapon->GetWeaponBox())
-	{
-		EquippedWeapon->GetWeaponBox()->SetCollisionEnabled(CollisionEnabled);
-
-		// This resets actors to ignore which is used to prevent multiple actor hits per weapon swing
-		EquippedWeapon->IgnoreActors.Empty(); 
-	}
 }
 
 void ASlashCharacter::MoveForward(float Value)
