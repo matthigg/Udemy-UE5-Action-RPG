@@ -151,6 +151,8 @@ void ASlashCharacter::EKeyPressed()
 
 void ASlashCharacter::Attack()
 {
+	Super::Attack();
+
 	if (CanAttack())
 	{
 		PlayAttackMontage();
@@ -222,36 +224,6 @@ void ASlashCharacter::FinishEquipping()
 	UE_LOG(LogTemp, Warning, TEXT("=============================="));
 
 	ActionState = EActionState::EAS_Unoccupied;
-}
-
-void ASlashCharacter::PlayAttackMontage()
-{
-	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
-	if (AnimInstance && AttackMontage)
-	{
-		AnimInstance->Montage_Play(AttackMontage);
-
-		// Randomly select which attack animation to play
-		const int32 Selection = FMath::RandRange(0, 2);
-		FName SectionName = FName();
-
-		switch (Selection)
-		{
-		case 0:
-			SectionName = FName("Attack1");
-			break;
-		case 1:
-			SectionName = FName("Attack2");
-			break;
-		case 2:
-			SectionName = FName("Attack3");
-			break;
-		default:
-			break;
-		}
-
-		AnimInstance->Montage_JumpToSection(SectionName, AttackMontage);
-	}
 }
 
 void ASlashCharacter::PlayEquipMontage(const FName& SectionName)

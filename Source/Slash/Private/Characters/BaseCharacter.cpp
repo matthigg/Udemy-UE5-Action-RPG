@@ -5,6 +5,8 @@
 #include "Items/Item.h"
 #include "Items/Weapons/Weapon.h"
 #include "Components/AttributeComponent.h"
+#include "Kismet/GameplayStatics.h"
+#include "Components/CapsuleComponent.h"
 
 class AWeapon;
 
@@ -36,11 +38,12 @@ bool ABaseCharacter::CanAttack()
 	return false;
 }
 
-void ABaseCharacter::Die()
+bool ABaseCharacter::IsAlive()
 {
+	return Attributes && Attributes->IsAlive();
 }
 
-void ABaseCharacter::PlayAttackMontage()
+void ABaseCharacter::Die()
 {
 }
 
@@ -134,16 +137,76 @@ void ABaseCharacter::DirectionalHitReact(const FVector& ImpactPoint)
 
 	PlayHitReactMontage(Section);
 
-	//if (GEngine)
-	//{
-	//	GEngine->AddOnScreenDebugMessage(1, 5.f, FColor::Green, FString::Printf(TEXT("Theta: %f"), Theta));
-	//}
-
-	//UKismetSystemLibrary::DrawDebugArrow(this, GetActorLocation(), GetActorLocation() + Forward * 60.f, 5.f, FColor::Red, 5.f);
-	//UKismetSystemLibrary::DrawDebugArrow(this, GetActorLocation(), GetActorLocation() + ToHit * 60.f, 5.f, FColor::Green, 5.f);
-	//UKismetSystemLibrary::DrawDebugArrow(this, GetActorLocation(), GetActorLocation() + CrossProduct * 100.f, 5.f, FColor::Blue, 5.f);
-
 }
 
+void ABaseCharacter::PlayHitSound(const FVector& ImpactPoint)
+{
+	if (HitSound)
+	{
+		UGameplayStatics::PlaySoundAtLocation(
+			this,
+			HitSound,
+			ImpactPoint
+		);
+	}
+}
 
+void ABaseCharacter::SpawnParticles(const FVector& ImpactPoint)
+{
+
+	if (HitParticles)
+	{
+		UGameplayStatics::SpawnEmitterAtLocation(
+			this,
+			HitParticles,
+			ImpactPoint,
+			FRotator(0.f),
+			true
+		);
+	}
+}
+
+void ABaseCharacter::HandleDamage(float DamageAmount)
+{
+	if (Attributes)
+	{
+		Attributes->ReceiveDamage(DamageAmount);
+	}
+}
+
+void ABaseCharacter::PlayMontageSection(UAnimMontage* Montage, const FName& SectionName)
+{
+	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+	if (AnimInstance && Montage)
+	{
+		AnimInstance->Montage_Play(Montage);
+		AnimInstance->Montage_JumpToSection(SectionName, Montage);
+	}
+}
+
+int32 ABaseCharacter::PlayAttackMontage()
+{
+	return PlayRandomMontageSection(AttackMontage, AttackMontageSections);
+}
+
+int32 ABaseCharacter::PlayDeathMontage()
+{
+	return PlayRandomMontageSection(DeathMontage, DeathMontageSections);
+}
+
+void ABaseCharacter::DisableCapsule()
+{
+	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+}
+
+int32 ABaseCharacter::PlayRandomMontageSection(UAnimMontage* Montage, const TArray<FName>& SectionNames)
+{
+	if (SectionNames.Num() <= 0) return -1;
+
+	const int32 MaxSectionIndex = SectionNames.Num() - 1;
+	const int32 Selection = FMath::RandRange(0, MaxSectionIndex);
+	PlayMontageSection(Montage, SectionNames[Selection]);
+
+	return Selection;
+}
 
