@@ -47,6 +47,8 @@ void AEnemy::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	GEngine->AddOnScreenDebugMessage(1, 1.f, FColor::Cyan, FString::Printf(TEXT("Current State: %d"), (int32)EnemyState));
+
 	if (IsDead()) return;
 
 	// The EnemyState enum order:
@@ -99,8 +101,8 @@ void AEnemy::BeginPlay()
 {
 	Super::BeginPlay();
 	if (PawnSensingCPP) PawnSensingCPP->OnSeePawn.AddDynamic(this, &AEnemy::PawnSeen);
-
 	InitializeEnemy();
+	Tags.Add(FName("Enemy"));
 }
 
 void AEnemy::Die()
@@ -133,7 +135,8 @@ bool AEnemy::CanAttack()
 
 void AEnemy::AttackEnd()
 {
-	EnemyState = EEnemyState::EES_NoState;
+	//EnemyState = EEnemyState::EES_NoState;
+	EnemyState = EEnemyState::EES_Patrolling;
 	CheckCombatTarget();
 }
 
@@ -275,11 +278,18 @@ bool AEnemy::IsInsideAttackRadius()
 void AEnemy::SpawnDefaultWeapon()
 {
 	UWorld* World = GetWorld();
-	if (World)
+	if (World && WeaponClass)
 	{
 		AWeapon* DefaultWeapon = World->SpawnActor<AWeapon>(WeaponClass);
-		DefaultWeapon->Equip(GetMesh(), FName("RightHandSocket"), this, this);
-		EquippedWeapon = DefaultWeapon;
+		if (DefaultWeapon)
+		{
+			DefaultWeapon->Equip(GetMesh(), FName("RightHandSocket"), this, this);
+			EquippedWeapon = DefaultWeapon;
+
+			// ─── ADD THESE LINES TO FIX THE STUTTERING COLLIDERS ───
+			// Forces this enemy character to completely ignore physical collision sweeps with the weapon
+			this->MoveIgnoreActorAdd(DefaultWeapon);
+		}
 	}
 }
 

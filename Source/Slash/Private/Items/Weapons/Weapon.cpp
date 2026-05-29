@@ -34,7 +34,7 @@ void AWeapon::BeginPlay()
 
 void AWeapon::Equip(
 	USceneComponent* InParent, 
-	FName InSocketName, 
+	FName InSocketName,
 	AActor* NewOwner, APawn* 
 	NewInstigator
 )
@@ -114,6 +114,8 @@ void AWeapon::OnBoxOverlap(
 	const FHitResult& SweepResult
 )
 {
+	if (ActorIsSameType(OtherActor)) return; // Prevents enemies from damaging each other with their weapons
+
 	FHitResult BoxHit;
 	BoxTrace(BoxHit);
 
@@ -132,6 +134,8 @@ void AWeapon::OnBoxOverlap(
 
 	if (BoxHit.GetActor())
 	{
+		if (ActorIsSameType(OtherActor)) return;
+
 		UGameplayStatics::ApplyDamage(
 			BoxHit.GetActor(),
 			Damage,
@@ -144,6 +148,11 @@ void AWeapon::OnBoxOverlap(
 		// function is implemented in Blueprint, so it doesn't have a function body in C++
 		CreateFields(BoxHit.ImpactPoint); 
 	}
+}
+
+bool AWeapon::ActorIsSameType(AActor* OtherActor)
+{
+	return GetOwner()->ActorHasTag(TEXT("Enemy")) && OtherActor->ActorHasTag("Enemy");
 }
 
 void AWeapon::ExecuteGetHit(FHitResult& BoxHit)

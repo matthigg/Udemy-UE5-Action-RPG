@@ -122,6 +122,24 @@ void ABaseCharacter::DirectionalHitReact(const FVector& ImpactPoint)
 	// Since the angle for FromBack is -135 < theta < 135, instead of actually checking
 	// that we can check forward, left, and right, and if it's not one of those then it
 	// must be back.
+	//FName Section("FromBack");
+
+	//if (Theta >= -45.f && Theta < 45.f)
+	//{
+	//	Section = FName("FromFront");
+	//}
+	//else if (Theta >= -135.f && Theta < -45.f)
+	//{
+	//	Section = FName("FromLeft");
+	//}
+	//else if (Theta >= 45.f && Theta < 135.f)
+	////else if (Theta >= -45.f && Theta < -135.f)
+	//{
+	//	Section = FName("FromRight");
+	//}
+
+	//PlayHitReactMontage(Section);
+
 	FName Section("FromBack");
 
 	if (Theta >= -45.f && Theta < 45.f)
@@ -132,7 +150,7 @@ void ABaseCharacter::DirectionalHitReact(const FVector& ImpactPoint)
 	{
 		Section = FName("FromLeft");
 	}
-	else if (Theta >= -45.f && Theta < -135.f)
+	else if (Theta >= 45.f && Theta < 135.f)
 	{
 		Section = FName("FromRight");
 	}
@@ -186,8 +204,35 @@ void ABaseCharacter::PlayMontageSection(UAnimMontage* Montage, const FName& Sect
 	}
 }
 
+//int32 ABaseCharacter::PlayAttackMontage()
+//{
+//	return PlayRandomMontageSection(AttackMontage, AttackMontageSections);
+//}
+
 int32 ABaseCharacter::PlayAttackMontage()
 {
+	// ─── LOG THE MONTAGE SECTIONS ARRAY ───
+	UE_LOG(LogTemp, Warning, TEXT("=== %s: Printing AttackMontageSections (%d items) ==="), *GetName(), AttackMontageSections.Num());
+
+	// If the array is empty, let yourself know immediately
+	if (AttackMontageSections.Num() == 0)
+	{
+		UE_LOG(LogTemp, Error, TEXT("%s: AttackMontageSections array is EMPTY! Check your character instance details panel."), *GetName());
+	}
+	else
+	{
+		// Iterate through each element in the array
+		for (int32 i = 0; i < AttackMontageSections.Num(); ++i)
+		{
+			// Note: Assuming AttackMontageSections contains FName. 
+			// If it's already an FString, remove the '.ToString()' part.
+			FString SectionNameStr = AttackMontageSections[i].ToString();
+
+			UE_LOG(LogTemp, Display, TEXT("   Section [%d]: %s"), i, *SectionNameStr);
+		}
+	}
+
+	// Original functionality remains completely untouched
 	return PlayRandomMontageSection(AttackMontage, AttackMontageSections);
 }
 
