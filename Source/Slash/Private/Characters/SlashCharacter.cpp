@@ -8,6 +8,7 @@
 #include "GroomComponent.h"
 #include "Items/Weapons/Weapon.h"
 #include "Animation/AnimMontage.h"
+#include "Kismet/GameplayStatics.h"
 
 ASlashCharacter::ASlashCharacter()
 {
@@ -66,6 +67,12 @@ void ASlashCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
 
 }
 
+void ASlashCharacter::GetHit_Implementation(const FVector& ImpactPoint)
+{
+	PlayHitSound(ImpactPoint);
+	SpawnParticles(ImpactPoint);
+}
+
 void ASlashCharacter::MoveForward(float Value)
 {
 	if (ActionState != EActionState::EAS_Unoccupied) return;
@@ -113,40 +120,29 @@ void ASlashCharacter::LookUp(float Value)
 
 void ASlashCharacter::EKeyPressed()
 {
-	//UE_LOG(LogTemp, Warning, TEXT("E KEY PRESSED"));
-	//UE_LOG(LogTemp, Warning, TEXT("=============================="));
-
 	AWeapon* OverlappingWeapon = Cast<AWeapon>(OverlappingItem);
 	if (OverlappingWeapon)
 	{
-		OverlappingWeapon->Equip(GetMesh(), FName("RightHandSocket"), this, this);
-		CharacterState = ECharacterState::ECS_EquippedOneHandedWeapon;
-		OverlappingItem = nullptr;
-		EquippedWeapon = OverlappingWeapon;
+		EquipWeapon(OverlappingWeapon);
 	}
 	else {
-		//UE_LOG(LogTemp, Warning, TEXT("ELSE"));
-		//UE_LOG(LogTemp, Warning, TEXT("=============================="));
-
-		if (CanDisarm()) {
-
-			//UE_LOG(LogTemp, Warning, TEXT("CAN DISARM"));
-			//UE_LOG(LogTemp, Warning, TEXT("=============================="));
-
-			PlayEquipMontage(FName("Unequip"));
-			CharacterState = ECharacterState::ECS_Unequipped;
-			ActionState = EActionState::EAS_EquippingWeapon;
-		}
-		else if (CanArm()) {
-
-			//UE_LOG(LogTemp, Warning, TEXT("CAN ARM"));
-			//UE_LOG(LogTemp, Warning, TEXT("=============================="));
-
-			PlayEquipMontage(FName("Equip"));
-			CharacterState = ECharacterState::ECS_EquippedOneHandedWeapon;
-			ActionState = EActionState::EAS_EquippingWeapon;
-		}
+		if (CanDisarm()) Disarm();
+		else if (CanArm()) Arm();
 	}
+}
+
+void ASlashCharacter::Disarm()
+{
+	PlayEquipMontage(FName("Unequip"));
+	CharacterState = ECharacterState::ECS_Unequipped;
+	ActionState = EActionState::EAS_EquippingWeapon;
+}
+
+void ASlashCharacter::Arm()
+{
+	PlayEquipMontage(FName("Equip"));
+	CharacterState = ECharacterState::ECS_EquippedOneHandedWeapon;
+	ActionState = EActionState::EAS_EquippingWeapon;
 }
 
 void ASlashCharacter::Attack()
@@ -158,6 +154,19 @@ void ASlashCharacter::Attack()
 		PlayAttackMontage();
 		ActionState = EActionState::EAS_Attacking;
 	}
+}
+
+void ASlashCharacter::EquipWeapon(AWeapon* WeaponToEquip)
+{
+	WeaponToEquip->Equip(GetMesh(), FName("RightHandSocket"), this, this);
+	CharacterState = ECharacterState::ECS_EquippedOneHandedWeapon;
+	OverlappingItem = nullptr;
+	EquippedWeapon = WeaponToEquip;
+}
+
+void ASlashCharacter::AttackEnd()
+{
+	ActionState = EActionState::EAS_Unoccupied;
 }
 
 bool ASlashCharacter::CanAttack()
@@ -202,7 +211,7 @@ bool ASlashCharacter::CanArm()
 		EquippedWeapon;
 }
 
-void ASlashCharacter::Disarm()
+void ASlashCharacter::AttachWeaponToBack()
 {
 	if (EquippedWeapon)
 	{
@@ -210,7 +219,7 @@ void ASlashCharacter::Disarm()
 	}
 }
 
-void ASlashCharacter::Arm()
+void ASlashCharacter::AttachWeaponToHand()
 {
 	if (EquippedWeapon)
 	{
@@ -238,11 +247,3 @@ void ASlashCharacter::PlayEquipMontage(const FName& SectionName)
 		AnimInstance->Montage_JumpToSection(SectionName, EquipMontage);
 	}
 }
-
-void ASlashCharacter::AttackEnd()
-{
-	ActionState = EActionState::EAS_Unoccupied;
-}
-
-
-

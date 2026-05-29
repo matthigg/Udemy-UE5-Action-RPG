@@ -21,6 +21,10 @@ public:
 
 	AWeapon();
 	void Equip(USceneComponent* InParent, FName InSocketName, AActor* NewOwner, APawn* NewInstigator);
+	void DisableItemCollision();
+	void DeactiveEmbers();
+	void DisableSphereCollision();
+	void PlayEquipSound();
 	void AttachMeshToSocket(USceneComponent* InParent, const FName& InSocketName);
 	TArray<AActor*> IgnoreActors;
 
@@ -57,10 +61,20 @@ protected:
 		const FHitResult& SweepResult
 	);
 
+	void ExecuteGetHit(FHitResult& BoxHit);
+
 	UFUNCTION(BlueprintImplementableEvent)
 	void CreateFields(const FVector& FieldLocation);
 
 private:
+
+	void BoxTrace(FHitResult& BoxHit);
+
+	UPROPERTY(EditAnywhere, Category = "Weapon Properties")
+	FVector BoxTraceExtent = FVector(5.f, 5.f, 5.f);
+
+	UPROPERTY(EditAnywhere, Category = "Weapon Properties")
+	bool bShowBoxDebug = false;
 
 	// Generally speaking, EditAnywhere is for variables and VisibleAnywhere is for components
 	UPROPERTY(EditAnywhere, Category = "Weapon Properties")

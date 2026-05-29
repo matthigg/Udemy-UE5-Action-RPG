@@ -39,30 +39,46 @@ void AWeapon::Equip(
 	NewInstigator
 )
 {
+	ItemState = EItemState::EIS_Equipped;
 	SetOwner(NewOwner);
 	SetInstigator(NewInstigator);
+	AttachMeshToSocket(InParent, InSocketName);
+	PlayEquipSound();
+	DisableItemCollision();
+	DisableSphereCollision();
+	DeactiveEmbers();
+}
 
+void AWeapon::DisableItemCollision()
+{
 	// Turn off physics collisions so the player doesn't get stuck
 	if (ItemMesh)
 	{
 		ItemMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 		ItemMesh->SetCollisionResponseToAllChannels(ECR_Ignore);
 	}
+}
 
-	if (SphereCPP)
-	{
-		SphereCPP->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-		SphereCPP->SetCollisionResponseToAllChannels(ECR_Ignore);
-	}
-
+void AWeapon::DeactiveEmbers()
+{
 	if (EmbersEffect)
 	{
 		EmbersEffect->Deactivate();
 		EmbersEffect->SetAutoActivate(false);
 	}
+}
 
-	AttachMeshToSocket(InParent, InSocketName);
-	ItemState = EItemState::EIS_Equipped;
+void AWeapon::DisableSphereCollision()
+{
+	if (SphereCPP)
+	{
+		SphereCPP->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		SphereCPP->SetCollisionResponseToAllChannels(ECR_Ignore);
+	}
+}
+
+void AWeapon::PlayEquipSound()
+{
 	if (EquipSound)
 	{
 		UGameplayStatics::PlaySoundAtLocation(this, EquipSound, GetActorLocation());
@@ -98,65 +114,24 @@ void AWeapon::OnBoxOverlap(
 	const FHitResult& SweepResult
 )
 {
-	//UE_LOG(LogTemp, Warning, TEXT("OnBoxOverlap"));
-	//UE_LOG(LogTemp, Warning, TEXT("======================================"));
-
-	const FVector Start = BoxTraceStartCPP->GetComponentLocation();
-	const FVector End = BoxTraceEndCPP->GetComponentLocation();
-
-	TArray<AActor*> ActorsToIgnore;
-	ActorsToIgnore.Add(this);
-
-	for (AActor* Actor : IgnoreActors)
-	{
-		ActorsToIgnore.AddUnique(Actor);
-	}
-
 	FHitResult BoxHit;
+	BoxTrace(BoxHit);
 
-	UKismetSystemLibrary::BoxTraceSingle(
-		this,
-		Start,
-		End,
-		FVector(5.f, 5.f, 5.f),
-		BoxTraceStartCPP->GetComponentRotation(),
-		ETraceTypeQuery::TraceTypeQuery1,
-		false,
-		ActorsToIgnore,
-		//EDrawDebugTrace::ForDuration,
-		EDrawDebugTrace::None,
-		BoxHit,
-		true
-	);
+	//if (BoxHit.bBlockingHit)
+	//{
+	//	// Logs general hit info: bone name hit, component hit, and impact location vectors
+	//	//UE_LOG(LogTemp, Warning, TEXT("BoxHit Registered! Component: %s | Bone: %s | Impact Point: %s"),
+	//	//	*BoxHit.GetComponent()->GetName(),
+	//	//	*BoxHit.BoneName.ToString(),
+	//	//	*BoxHit.ImpactPoint.ToString());
+	//}
+	//else
+	//{
+	//	//UE_LOG(LogTemp, Log, TEXT("BoxTrace missed everything."));
+	//}
 
-	// ==========================================
-	// 1. LOGGING OUT BOXHIT DETAILS
-	// ==========================================
-	if (BoxHit.bBlockingHit)
-	{
-		// Logs general hit info: bone name hit, component hit, and impact location vectors
-		//UE_LOG(LogTemp, Warning, TEXT("BoxHit Registered! Component: %s | Bone: %s | Impact Point: %s"),
-		//	*BoxHit.GetComponent()->GetName(),
-		//	*BoxHit.BoneName.ToString(),
-		//	*BoxHit.ImpactPoint.ToString());
-	}
-	else
-	{
-		//UE_LOG(LogTemp, Log, TEXT("BoxTrace missed everything."));
-	}
-
-	// ==========================================
-	// 2. LOGGING OUT BOXHIT.GETACTOR()
-	// ==========================================
 	if (BoxHit.GetActor())
 	{
-		// Safely extract the hit actor's name
-		FString HitActorName = BoxHit.GetActor()->GetName();
-
-		//UE_LOG(LogTemp, Warning, TEXT("BoxHit.GetActor() Found: %s"), *HitActorName);
-		//UE_LOG(LogTemp, Warning, TEXT("==============================="));
-
-		// Apply Damage
 		UGameplayStatics::ApplyDamage(
 			BoxHit.GetActor(),
 			Damage,
@@ -164,79 +139,42 @@ void AWeapon::OnBoxOverlap(
 			this,
 			UDamageType::StaticClass()
 		);
-
-		IHitInterface* HitInterface = Cast<IHitInterface>(BoxHit.GetActor());
-		if (HitInterface)
-		{
-			//HitInterface->GetHit(BoxHit.ImpactPoint);
-			HitInterface->Execute_GetHit(BoxHit.GetActor(), BoxHit.ImpactPoint);
-		}
-		IgnoreActors.AddUnique(BoxHit.GetActor());
-		CreateFields(BoxHit.ImpactPoint);
+		ExecuteGetHit(BoxHit);
+		// Used when breaking destructible meshes with Niagara field system; the CreateFields 
+		// function is implemented in Blueprint, so it doesn't have a function body in C++
+		CreateFields(BoxHit.ImpactPoint); 
 	}
 }
 
+void AWeapon::ExecuteGetHit(FHitResult& BoxHit)
+{
+	IHitInterface* HitInterface = Cast<IHitInterface>(BoxHit.GetActor());
+	if (HitInterface)
+	{
+		HitInterface->Execute_GetHit(BoxHit.GetActor(), BoxHit.ImpactPoint);
+	}
+}
 
+void AWeapon::BoxTrace(FHitResult& BoxHit)
+{
+	const FVector Start = BoxTraceStartCPP->GetComponentLocation();
+	const FVector End = BoxTraceEndCPP->GetComponentLocation();
 
-
-
-
-
-
-
-
-
-
-
-//void AWeapon::OnBoxOverlap(
-//	UPrimitiveComponent* OverlappedComponent, 
-//	AActor* OtherActor, UPrimitiveComponent* 
-//	OtherComp, 
-//	int32 OtherBodyIndex, 
-//	bool bFromSweep, 
-//	const FHitResult& SweepResult
-//)
-//{
-//	UE_LOG(LogTemp, Warning, TEXT("OnBoxOverlap"));
-//	UE_LOG(LogTemp, Warning, TEXT("======================================"));
-//
-//
-//	// GetComponentLocation() gets from the world/global location, GetRelativeLocation() gets from the local location
-//	const FVector Start = BoxTraceStartCPP->GetComponentLocation();
-//	const FVector End = BoxTraceEndCPP->GetComponentLocation();
-//
-//	// Note: a TArray is a class with a dynamically adjusted array, which is nice considering C++ doesn't offer that
-//	// by default. Additionally, TArray is a template class, which is why we have to specify the type to store. Also,
-//	// TArrays typically aren't pointers, which is why we're access its Add method via dot notation, e.g.
-//	// ActorsToIgnore.Add(...);
-//	TArray<AActor*> ActorsToIgnore;
-//	ActorsToIgnore.Add(this);
-//	FHitResult BoxHit;
-//	UKismetSystemLibrary::BoxTraceSingle(
-//		this,
-//		Start,
-//		End,
-//		FVector(5.f, 5.f, 5.f),
-//		BoxTraceStartCPP->GetComponentRotation(),
-//		ETraceTypeQuery::TraceTypeQuery1,
-//		false,
-//		ActorsToIgnore,
-//		EDrawDebugTrace::ForDuration,
-//		BoxHit, // Parameter name is FHitResult &OutHits, so the argument is passed by reference
-//		true
-//	);
-//	if (BoxHit.GetActor())
-//	{
-//		UE_LOG(LogTemp, Warning, TEXT("BoxHit.GetActor()"));
-//		UE_LOG(LogTemp, Warning, TEXT("==============================="));
-//
-//		// Since the AEnemy class in Enemy.h inherits IHitInterface, it "is" of type IHitInterface
-//		// (in addition to ACharacter).
-//		IHitInterface* HitInterface = Cast<IHitInterface>(BoxHit.GetActor());
-//		if (HitInterface)
-//		{
-//			HitInterface->GetHit(BoxHit.ImpactPoint);
-//		}
-//
-//	}
-//}
+	TArray<AActor*> ActorsToIgnore;
+	ActorsToIgnore.Add(this);
+	for (AActor* Actor : IgnoreActors) ActorsToIgnore.AddUnique(Actor);
+	UKismetSystemLibrary::BoxTraceSingle(
+		this,
+		Start,
+		End,
+		BoxTraceExtent,
+		BoxTraceStartCPP->GetComponentRotation(),
+		ETraceTypeQuery::TraceTypeQuery1,
+		false,
+		ActorsToIgnore,
+		bShowBoxDebug ? EDrawDebugTrace::ForDuration : EDrawDebugTrace::None,
+		BoxHit,
+		true
+	);
+	IgnoreActors.AddUnique(BoxHit.GetActor());
+}
