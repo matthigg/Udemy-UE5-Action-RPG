@@ -47,6 +47,6 @@ public:
 	// it can be called from both C++ and blueprints. If we were to call this function without the Execute_ prefix, 
 	// it would not be recognized as a valid function call in blueprints, and we would get a compiler error.
 	UFUNCTION(BlueprintNativeEvent)
-	void GetHit(const FVector& ImpactPoint);
+	void GetHit(const FVector& ImpactPoint, AActor* Hitter);
 
 };

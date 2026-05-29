@@ -119,19 +119,6 @@ void AWeapon::OnBoxOverlap(
 	FHitResult BoxHit;
 	BoxTrace(BoxHit);
 
-	//if (BoxHit.bBlockingHit)
-	//{
-	//	// Logs general hit info: bone name hit, component hit, and impact location vectors
-	//	//UE_LOG(LogTemp, Warning, TEXT("BoxHit Registered! Component: %s | Bone: %s | Impact Point: %s"),
-	//	//	*BoxHit.GetComponent()->GetName(),
-	//	//	*BoxHit.BoneName.ToString(),
-	//	//	*BoxHit.ImpactPoint.ToString());
-	//}
-	//else
-	//{
-	//	//UE_LOG(LogTemp, Log, TEXT("BoxTrace missed everything."));
-	//}
-
 	if (BoxHit.GetActor())
 	{
 		if (ActorIsSameType(OtherActor)) return;
@@ -160,7 +147,7 @@ void AWeapon::ExecuteGetHit(FHitResult& BoxHit)
 	IHitInterface* HitInterface = Cast<IHitInterface>(BoxHit.GetActor());
 	if (HitInterface)
 	{
-		HitInterface->Execute_GetHit(BoxHit.GetActor(), BoxHit.ImpactPoint);
+		HitInterface->Execute_GetHit(BoxHit.GetActor(), BoxHit.ImpactPoint, GetOwner());
 	}
 }
 

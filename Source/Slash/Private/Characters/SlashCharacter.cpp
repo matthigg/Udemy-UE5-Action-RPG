@@ -74,10 +74,11 @@ void ASlashCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
 
 }
 
-void ASlashCharacter::GetHit_Implementation(const FVector& ImpactPoint)
+void ASlashCharacter::GetHit_Implementation(const FVector& ImpactPoint, AActor* Hitter)
 {
-	PlayHitSound(ImpactPoint);
-	SpawnParticles(ImpactPoint);
+	Super::GetHit_Implementation(ImpactPoint, Hitter);
+	SetWeaponCollisionEnabled(ECollisionEnabled::NoCollision);
+	ActionState = EActionState::EAS_HitReaction;
 }
 
 void ASlashCharacter::MoveForward(float Value)
@@ -239,6 +240,11 @@ void ASlashCharacter::FinishEquipping()
 	UE_LOG(LogTemp, Warning, TEXT("FinishEquipping"));
 	UE_LOG(LogTemp, Warning, TEXT("=============================="));
 
+	ActionState = EActionState::EAS_Unoccupied;
+}
+
+void ASlashCharacter::HitReactEnd()
+{
 	ActionState = EActionState::EAS_Unoccupied;
 }
 

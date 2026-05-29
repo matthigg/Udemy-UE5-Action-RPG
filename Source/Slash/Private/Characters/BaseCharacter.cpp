@@ -10,15 +10,12 @@
 
 class AWeapon;
 
-// Sets default values
 ABaseCharacter::ABaseCharacter()
 {
 	PrimaryActorTick.bCanEverTick = true;
 
 	Attributes = CreateDefaultSubobject<UAttributeComponent>(TEXT("Attributes"));
 	GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
-
-
 }
 
 void ABaseCharacter::BeginPlay()
@@ -29,6 +26,15 @@ void ABaseCharacter::BeginPlay()
 
 void ABaseCharacter::AttackEnd()
 {
+}
+
+void ABaseCharacter::GetHit_Implementation(const FVector& ImpactPoint, AActor* Hitter)
+{
+	if (IsAlive() && Hitter) DirectionalHitReact(Hitter->GetActorLocation());
+	else Die();
+
+	PlayHitSound(ImpactPoint);
+	SpawnParticles(ImpactPoint);
 }
 
 void ABaseCharacter::Attack()
@@ -82,6 +88,8 @@ void ABaseCharacter::SetWeaponCollisionEnabled(ECollisionEnabled::Type Collision
 
 void ABaseCharacter::DirectionalHitReact(const FVector& ImpactPoint)
 {
+	UE_LOG(LogTemp, Warning, TEXT("%s: Calculating hit direction..."), *GetName());
+
 	// It's useful when calculating dot products for 2 vectors to both be unit vectors.
 	// ImpactPoint - GetActorLocation() by itself is not a normalized vector, but you
 	// can use *.GetSafeNormal() to normalize it.
@@ -155,6 +163,8 @@ void ABaseCharacter::DirectionalHitReact(const FVector& ImpactPoint)
 		Section = FName("FromRight");
 	}
 
+	UE_LOG(LogTemp, Warning, TEXT("%s: Hit from %s (Theta: %.2f degrees)"), *GetName(), *Section.ToString(), Theta);
+
 	PlayHitReactMontage(Section);
 
 }
@@ -204,33 +214,28 @@ void ABaseCharacter::PlayMontageSection(UAnimMontage* Montage, const FName& Sect
 	}
 }
 
-//int32 ABaseCharacter::PlayAttackMontage()
-//{
-//	return PlayRandomMontageSection(AttackMontage, AttackMontageSections);
-//}
-
 int32 ABaseCharacter::PlayAttackMontage()
 {
-	// ─── LOG THE MONTAGE SECTIONS ARRAY ───
-	UE_LOG(LogTemp, Warning, TEXT("=== %s: Printing AttackMontageSections (%d items) ==="), *GetName(), AttackMontageSections.Num());
+	//// ─── LOG THE MONTAGE SECTIONS ARRAY ───
+	//UE_LOG(LogTemp, Warning, TEXT("=== %s: Printing AttackMontageSections (%d items) ==="), *GetName(), AttackMontageSections.Num());
 
-	// If the array is empty, let yourself know immediately
-	if (AttackMontageSections.Num() == 0)
-	{
-		UE_LOG(LogTemp, Error, TEXT("%s: AttackMontageSections array is EMPTY! Check your character instance details panel."), *GetName());
-	}
-	else
-	{
-		// Iterate through each element in the array
-		for (int32 i = 0; i < AttackMontageSections.Num(); ++i)
-		{
-			// Note: Assuming AttackMontageSections contains FName. 
-			// If it's already an FString, remove the '.ToString()' part.
-			FString SectionNameStr = AttackMontageSections[i].ToString();
+	//// If the array is empty, let yourself know immediately
+	//if (AttackMontageSections.Num() == 0)
+	//{
+	//	UE_LOG(LogTemp, Error, TEXT("%s: AttackMontageSections array is EMPTY! Check your character instance details panel."), *GetName());
+	//}
+	//else
+	//{
+	//	// Iterate through each element in the array
+	//	for (int32 i = 0; i < AttackMontageSections.Num(); ++i)
+	//	{
+	//		// Note: Assuming AttackMontageSections contains FName. 
+	//		// If it's already an FString, remove the '.ToString()' part.
+	//		FString SectionNameStr = AttackMontageSections[i].ToString();
 
-			UE_LOG(LogTemp, Display, TEXT("   Section [%d]: %s"), i, *SectionNameStr);
-		}
-	}
+	//		UE_LOG(LogTemp, Display, TEXT("   Section [%d]: %s"), i, *SectionNameStr);
+	//	}
+	//}
 
 	// Original functionality remains completely untouched
 	return PlayRandomMontageSection(AttackMontage, AttackMontageSections);
