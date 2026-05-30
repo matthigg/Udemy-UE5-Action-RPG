@@ -6,7 +6,7 @@
 #include "GameFramework/Character.h"
 #include "Components/BoxComponent.h"
 #include "Interfaces/HitInterface.h" // Need to include this since we're inheriting from it
-
+#include "Characters/CharacterTypes.h"
 
 #include "BaseCharacter.generated.h"
 
@@ -37,6 +37,7 @@ protected:
 	void DisableCapsule();
 	virtual bool CanAttack();
 	bool IsAlive();
+	void DisableMeshCollision();
 
 	// Montage functions
 	void PlayHitReactMontage(const FName& SectionName);
@@ -68,6 +69,9 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Combat")
 	double WarpTargetDistance = 75.f;
 
+	UPROPERTY(BlueprintReadOnly)
+	TEnumAsByte<EDeathPose> DeathPose;
+
 private:	
 
 	// Montage functions
@@ -94,5 +98,9 @@ private:
 
 	UPROPERTY(EditAnywhere, Category = "Combat")
 	TArray<FName> DeathMontageSections;
+
+public:
+
+	FORCEINLINE TEnumAsByte<EDeathPose> GetDeathPose() const { return DeathPose; }
 
 };

@@ -12,6 +12,7 @@ class UCameraComponent;
 class UGroomComponent;
 class AItem;
 class UAnimMontage;
+class USlashOverlay;
 
 UCLASS()
 class SLASH_API ASlashCharacter : public ABaseCharacter
@@ -20,9 +21,18 @@ class SLASH_API ASlashCharacter : public ABaseCharacter
 
 public:
 
+	/** <AActor> */
 	ASlashCharacter();
 	virtual void Tick(float DeltaTime) override;
+	virtual float TakeDamage(
+		float DamageAmount,
+		struct FDamageEvent const& DamageEvent,
+		class AController* EventInstigator,
+		AActor* DamageCauser
+	) override;
+
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+	virtual void Jump() override;
 	virtual void GetHit_Implementation(const FVector& ImpactPoint, AActor* Hitter) override;
 
 protected:
@@ -46,9 +56,7 @@ protected:
 	bool CanArm();
 	void Disarm();
 	void Arm();
-	//void PlayHitSounds(const FVector& ImpactPoint);
-	//void SpawnHitParticles(const FVector& ImpactPoint);
-
+	virtual void Die() override;
 
 	UFUNCTION(BlueprintCallable)
 	void AttachWeaponToBack();
@@ -63,6 +71,10 @@ protected:
 	void HitReactEnd();
 
 private:
+
+	bool IsUnoccupied();
+	void InitializeSlashOverlay();
+	void SetHUDHealth();
 
 	ECharacterState CharacterState = ECharacterState::ECS_Unequipped;
 
@@ -87,6 +99,9 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Montages")
 	UAnimMontage* EquipMontage;
 
+	UPROPERTY()
+	USlashOverlay* SlashOverlay;
+
 public:
 
 	// The "inline" keyword is used for single-line functions, which are slightly optimized vs
@@ -99,4 +114,5 @@ public:
 	// Adding const in front of the function body ensures that this function cannot change
 	// anything
 	FORCEINLINE ECharacterState GetCharacterState() const { return CharacterState; }
+	FORCEINLINE EActionState GetActionState() const { return ActionState; }
 };
