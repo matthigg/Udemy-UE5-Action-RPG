@@ -7,6 +7,7 @@
 #include "Components/AttributeComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Components/CapsuleComponent.h"
+#include "Slash/DebugMacros.h"
 
 class AWeapon;
 
@@ -262,3 +263,32 @@ int32 ABaseCharacter::PlayRandomMontageSection(UAnimMontage* Montage, const TArr
 	return Selection;
 }
 
+void ABaseCharacter::StopAttackMontage()
+{
+	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+	if (AnimInstance && AttackMontage)
+	{
+		AnimInstance->Montage_Stop(0.25f, AttackMontage);
+	}
+}
+
+FVector ABaseCharacter::GetTranslationWarpTarget()
+{
+	if (CombatTarget)
+	{
+		const FVector CombatTargetLocation = CombatTarget->GetActorLocation();
+		FVector ToTarget = (CombatTargetLocation - GetActorLocation()).GetSafeNormal();
+		ToTarget *= WarpTargetDistance;
+		return CombatTargetLocation + ToTarget;
+	}
+	return FVector();
+}
+
+FVector ABaseCharacter::GetRotationWarpTarget()
+{
+	if (CombatTarget)
+	{
+		return CombatTarget->GetActorLocation();
+	}
+	return FVector();
+}
