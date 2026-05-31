@@ -19,10 +19,12 @@ class SLASH_API ASoul : public AItem
 
 public:
 
-
+	virtual void Tick(float DeltaTime) override;
 
 
 protected:
+
+	virtual void BeginPlay() override;
 
 	virtual void OnSphereOverlap(
 		UPrimitiveComponent* OverlappedComponent,
@@ -41,6 +43,11 @@ private:
 
 	UPROPERTY(EditAnywhere, Category = "Soul Properties")
 	int32 Souls;
+
+	double DesiredZ;
+
+	UPROPERTY(EditAnywhere, Category = "Soul Properties")
+	float DriftRate = -15.f;
 
 public:
 

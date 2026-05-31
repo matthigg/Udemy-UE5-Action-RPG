@@ -40,14 +40,14 @@ protected:
 	virtual void BeginPlay() override;
 
 	/** <ABaseCharacter> */
-	virtual void Die() override;
+	virtual void Die_Implementation() override;
 	void SpawnSoul();
 	virtual void Attack() override;
 	virtual bool CanAttack() override;
 	virtual void AttackEnd() override;
 	virtual void HandleDamage(float DamageAmount) override;
 
-	UPROPERTY(BlueprintReadOnly)
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
 	EEnemyState EnemyState = EEnemyState::EES_Patrolling;
 
 private:
@@ -86,14 +86,17 @@ private:
 	UPROPERTY(VisibleAnywhere)
 	UHealthBarComponent* HealthBarWidget;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category = "Combat")
 	TSubclassOf<class AWeapon> WeaponClass;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category = "Combat")
 	double CombatRadius = 1000.f;
 
-	UPROPERTY(EditAnywhere)
-	double AttackRadius = 140.f;
+	UPROPERTY(EditAnywhere, Category = "Combat")
+	double AttackRadius = 150.f;
+
+	UPROPERTY(EditAnywhere, Category = "Combat")
+	double AcceptanceRadius = 50.f;
 
 	UPROPERTY()
 	class AAIController* EnemyController;

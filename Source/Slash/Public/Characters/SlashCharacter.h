@@ -65,7 +65,7 @@ protected:
 	bool CanArm();
 	void Disarm();
 	void Arm();
-	virtual void Die() override;
+	virtual void Die_Implementation() override;
 	bool HasEnoughStamina();
 	bool IsOccupied();
 

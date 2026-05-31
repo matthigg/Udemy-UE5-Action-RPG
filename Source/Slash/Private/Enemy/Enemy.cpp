@@ -101,9 +101,17 @@ void AEnemy::GetHit_Implementation(const FVector& ImpactPoint, AActor* Hitter)
 	if (!IsDead()) ShowHealthBar();
 	ClearPatrolTimer();
 	ClearAttackTimer();
-	StopAttackMontage();
 	SetWeaponCollisionEnabled(ECollisionEnabled::NoCollision);
-	//ChaseTarget();
+	StopAttackMontage();
+
+	if (IsInsideAttackRadius())
+	{
+		if (!IsDead()) StartAttackTimer();
+	}
+	else if (!IsEngaged())
+	{
+		//ChaseTarget();
+	}
 }
 
 void AEnemy::BeginPlay()
@@ -114,9 +122,9 @@ void AEnemy::BeginPlay()
 	Tags.Add(FName("Enemy"));
 }
 
-void AEnemy::Die()
+void AEnemy::Die_Implementation()
 {
-	Super::Die();
+	Super::Die_Implementation();
 	EnemyState = EEnemyState::EES_Dead;
 	ClearAttackTimer();
 	HideHealthBar();
@@ -132,11 +140,12 @@ void AEnemy::SpawnSoul()
 	UWorld* World = GetWorld();
 	if (World && SoulClass && Attributes)
 	{
-		const FVector SpawnLocation = GetActorLocation() + FVector(0.f, 0.f, -10.f);
+		const FVector SpawnLocation = GetActorLocation() + FVector(0.f, 0.f, 125.f);
 		ASoul* SpawnedSoul = World->SpawnActor<ASoul>(SoulClass, SpawnLocation, GetActorRotation());
 		if (SpawnedSoul)
 		{
 			SpawnedSoul->SetSouls(Attributes->GetSouls());
+			SpawnedSoul->SetOwner(this);
 		}
 	}
 }
@@ -281,7 +290,7 @@ void AEnemy::SpawnDefaultWeapon()
 		AWeapon* DefaultWeapon = World->SpawnActor<AWeapon>(WeaponClass);
 		if (DefaultWeapon)
 		{
-			DefaultWeapon->Equip(GetMesh(), FName("RightHandSocket"), this, this);
+			DefaultWeapon->Equip(GetMesh(), FName("WeaponSocket"), this, this);
 			EquippedWeapon = DefaultWeapon;
 
 			// ─── ADD THESE LINES TO FIX THE STUTTERING COLLIDERS ───
@@ -309,7 +318,7 @@ void AEnemy::MoveToTarget(AActor* Target)
 
 	FAIMoveRequest MoveRequest;
 	MoveRequest.SetGoalActor(Target);
-	MoveRequest.SetAcceptanceRadius(60.f);
+	MoveRequest.SetAcceptanceRadius(AcceptanceRadius);
 
 	EnemyController->MoveTo(MoveRequest);
 
