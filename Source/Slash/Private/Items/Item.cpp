@@ -4,8 +4,10 @@
 #include "Items/Item.h"
 #include "Slash/DebugMacros.h"
 #include "Components/SphereComponent.h"
-#include "Characters/SlashCharacter.h"
+#include "Interfaces/PickupInterface.h"
 #include "NiagaraComponent.h"
+#include "NiagaraFunctionLibrary.h"
+#include "Kismet/GameplayStatics.h"
 
 // Sets default values
 AItem::AItem()
@@ -50,8 +52,8 @@ AItem::AItem()
 	// Set the collision profile to overlap all objects by default
 	//SphereCPP->SetCollisionProfileName(TEXT("OverlapAllDynamic"));
 
-	EmbersEffect = CreateDefaultSubobject<UNiagaraComponent>(TEXT("Embers"));
-	EmbersEffect->SetupAttachment(GetRootComponent());
+	ItemEffect = CreateDefaultSubobject<UNiagaraComponent>(TEXT("Embers"));
+	ItemEffect->SetupAttachment(GetRootComponent());
 }
 
 // Called when the game starts or when spawned
@@ -90,10 +92,10 @@ void AItem::OnSphereOverlap(
 	const FHitResult& SweepResult
 )
 {
-	ASlashCharacter* SlashCharacter = Cast<ASlashCharacter>(OtherActor);
-	if (SlashCharacter)
+	IPickupInterface* PickupInterface = Cast<IPickupInterface>(OtherActor);
+	if (PickupInterface)
 	{
-		SlashCharacter->SetOverlappingItem(this);
+		PickupInterface->SetOverlappingItem(this);
 	}
 
 	// Logging
@@ -106,17 +108,17 @@ void AItem::OnSphereOverlap(
 }
 
 void AItem::OnSphereEndOverlap(
-	UPrimitiveComponent* OverlappedComponent, 
-	AActor* OtherActor, 
-	UPrimitiveComponent* 
-	OtherComp, 
+	UPrimitiveComponent* OverlappedComponent,
+	AActor* OtherActor,
+	UPrimitiveComponent*
+	OtherComp,
 	int32 OtherBodyIndex
 )
 {
-	ASlashCharacter* SlashCharacter = Cast<ASlashCharacter>(OtherActor);
-	if (SlashCharacter)
+	IPickupInterface* PickupInterface = Cast<IPickupInterface>(OtherActor);
+	if (PickupInterface)
 	{
-		SlashCharacter->SetOverlappingItem(nullptr);
+		PickupInterface->SetOverlappingItem(nullptr);
 	}
 
 	// Logging
@@ -125,6 +127,30 @@ void AItem::OnSphereEndOverlap(
 	if (GEngine)
 	{
 		GEngine->AddOnScreenDebugMessage(1, 30.f, FColor::Blue, OtherActorName);
+	}
+}
+
+void AItem::SpawnPickupSystem()
+{
+	if (PickupEffect)
+	{
+		UNiagaraFunctionLibrary::SpawnSystemAtLocation(
+			this,
+			PickupEffect,
+			GetActorLocation()
+		);
+	}
+}
+
+void AItem::SpawnPickupSound()
+{
+	if (PickupSound)
+	{
+		UGameplayStatics::SpawnSoundAtLocation(
+			this,
+			PickupSound,
+			GetActorLocation()
+		);
 	}
 }
 

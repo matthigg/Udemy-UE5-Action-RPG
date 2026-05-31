@@ -4,9 +4,12 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "NiagaraFunctionLibrary.h"
+
 #include "Item.generated.h"
 
 class USphereComponent;
+class UNiagaraComponent;
 
 enum class EItemState : uint8
 {
@@ -65,6 +68,9 @@ protected:
 		int32 OtherBodyIndex
 	);
 
+	virtual void SpawnPickupSystem();
+	virtual void SpawnPickupSound();
+
 	// UPROPERTY Marks this pointer in order to track it in the Unreal Engine's garbage collection system. 
 	// This is necessary for any UObject-derived class, including components, to ensure that they are 
 	// properly cleaned up when no longer needed. This is also known as the "Reflection System".
@@ -77,13 +83,17 @@ protected:
 	EItemState ItemState = EItemState::EIS_Hovering;
 
 	UPROPERTY(EditAnywhere)
-	class UNiagaraComponent* EmbersEffect;
+	class UNiagaraComponent* ItemEffect;
+
+	UPROPERTY(EditAnywhere)
+	USoundBase* PickupSound;
 
 private:
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	float RunningTime;
 
-
+	UPROPERTY(EditAnywhere, Category = "Niagara")
+	UNiagaraSystem* PickupEffect;
 };
 
 template<typename T>

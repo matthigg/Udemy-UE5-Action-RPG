@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "BaseCharacter.h"
 #include "CharacterTypes.h"
+#include "Interfaces/PickupInterface.h"
 #include "SlashCharacter.generated.h"
 
 class USpringArmComponent;
@@ -13,9 +14,11 @@ class UGroomComponent;
 class AItem;
 class UAnimMontage;
 class USlashOverlay;
+class ASoul;
+class ATreasure;
 
 UCLASS()
-class SLASH_API ASlashCharacter : public ABaseCharacter
+class SLASH_API ASlashCharacter : public ABaseCharacter, public IPickupInterface
 {
 	GENERATED_BODY()
 
@@ -34,6 +37,9 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	virtual void Jump() override;
 	virtual void GetHit_Implementation(const FVector& ImpactPoint, AActor* Hitter) override;
+	virtual void SetOverlappingItem(AItem* Item) override;
+	virtual void AddSouls(ASoul* Soul) override;
+	virtual void AddGold(ATreasure* Treasure) override;
 
 protected:
 
@@ -106,11 +112,7 @@ public:
 
 	// The "inline" keyword is used for single-line functions, which are slightly optimized vs
 	// multi-line functions. However, by default, C++ can choose whether or not it actually 
-	// inlines the function. You can override this behavior by using the FORCEINLINE macro
-	// 
-	//inline void SetOverlappingItem(AItem* Item) { OverlappingItem = Item; }
-	FORCEINLINE void SetOverlappingItem(AItem* Item) { OverlappingItem = Item; }
-
+	// inlines the function. You can override this behavior by using the FORCEINLINE macro.
 	// Adding const in front of the function body ensures that this function cannot change
 	// anything
 	FORCEINLINE ECharacterState GetCharacterState() const { return CharacterState; }

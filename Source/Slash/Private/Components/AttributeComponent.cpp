@@ -32,6 +32,16 @@ bool UAttributeComponent::IsAlive()
 	return Health > 0.f;
 }
 
+void UAttributeComponent::AddGold(int32 GoldAmount)
+{
+	Gold += GoldAmount;
+}
+
+void UAttributeComponent::AddSouls(int32 SoulAmount)
+{
+	Souls += SoulAmount;
+}
+
 void UAttributeComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);

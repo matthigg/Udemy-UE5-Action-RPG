@@ -61,10 +61,10 @@ void AWeapon::DisableItemCollision()
 
 void AWeapon::DeactiveEmbers()
 {
-	if (EmbersEffect)
+	if (ItemEffect)
 	{
-		EmbersEffect->Deactivate();
-		EmbersEffect->SetAutoActivate(false);
+		ItemEffect->Deactivate();
+		ItemEffect->SetAutoActivate(false);
 	}
 }
 

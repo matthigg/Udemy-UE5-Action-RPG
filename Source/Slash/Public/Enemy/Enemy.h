@@ -10,6 +10,7 @@
 
 class UHealthBarComponent;
 class UPawnSensingComponent;
+class ASoul;
 
 UCLASS()
 class SLASH_API AEnemy : public ABaseCharacter
@@ -40,6 +41,7 @@ protected:
 
 	/** <ABaseCharacter> */
 	virtual void Die() override;
+	void SpawnSoul();
 	virtual void Attack() override;
 	virtual bool CanAttack() override;
 	virtual void AttackEnd() override;
@@ -129,5 +131,8 @@ private:
 
 	FTimerHandle PatrolTimer;
 	FTimerHandle AttackTimer;
+
+	UPROPERTY(EditAnywhere, Category = "Combat")
+	TSubclassOf<ASoul> SoulClass;
 
 };

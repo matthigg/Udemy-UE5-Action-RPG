@@ -27,7 +27,7 @@ public:
 	// intended to be inherited and then implemented in another class. To do this, first set them to zero in
 	// an interface header (such as this one, HitInterface.h), e.g. virtual void SomeFunction() = 0; Next,
 	// inherit this pure virtual function in another class via that class' header file. To see an example,
-	// this interface is currently inherited in Enemy.h.
+	// this interface is currently inherited in BaseCharacter.h.
 	//
 	// We're also creating a const parameter that takes a reference/pointer input argument, and this does 2
 	// things 1) Prevents changing/modifying the input argument, and 2) Passes a reference/address to the
@@ -36,7 +36,7 @@ public:
 
 	// Blueprint native events allow us to have both C++ and blueprint functionality. While GetHit is not
 	// marked as "virtual" it is still overridable, but it has to be implemented in a certain way. When
-	// implementing this function in a class that inherits this interface, e.g. Enemy.cpp, we have to implement
+	// implementing this function in a class that inherits this interface, e.g. BaseCharacter.cpp, we have to implement
 	// the function with the _Implementation suffix, e.g. void AEnemy::GetHit_Implementation(const FVector& ImpactPoint). 
 	// This is because the function is marked as a BlueprintNativeEvent, which means it can be implemented in 
 	// both C++ and blueprints. If we were to implement this function without the _Implementation suffix, it would 
