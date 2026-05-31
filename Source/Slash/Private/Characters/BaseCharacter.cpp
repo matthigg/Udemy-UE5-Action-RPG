@@ -30,6 +30,10 @@ void ABaseCharacter::AttackEnd()
 {
 }
 
+void ABaseCharacter::DodgeEnd()
+{
+}
+
 void ABaseCharacter::GetHit_Implementation(const FVector& ImpactPoint, AActor* Hitter)
 {
 	if (IsAlive() && Hitter) DirectionalHitReact(Hitter->GetActorLocation());
@@ -265,6 +269,13 @@ int32 ABaseCharacter::PlayDeathMontage()
 	}
 
 	return Selection;
+}
+
+void ABaseCharacter::PlayDodgeMontage()
+{
+	// There is only one section in the dodge montage, so we can just specify it directly 
+	// instead of using the PlayRandomMontageSection function.
+	PlayMontageSection(DodgeMontage, FName("Default")); 
 }
 
 void ABaseCharacter::DisableCapsule()

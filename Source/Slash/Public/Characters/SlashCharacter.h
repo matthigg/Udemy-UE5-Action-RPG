@@ -24,9 +24,10 @@ class SLASH_API ASlashCharacter : public ABaseCharacter, public IPickupInterface
 
 public:
 
+	virtual void Tick(float DeltaTime) override;
+
 	/** <AActor> */
 	ASlashCharacter();
-	virtual void Tick(float DeltaTime) override;
 	virtual float TakeDamage(
 		float DamageAmount,
 		struct FDamageEvent const& DamageEvent,
@@ -52,10 +53,12 @@ protected:
 	void LookUp(float Value);
 	void EKeyPressed();
 	virtual void Attack() override;
+	void Dodge();
 
 	// Combat functions
 	void EquipWeapon(AWeapon* WeaponToEquip);
 	virtual void AttackEnd() override;
+	virtual void DodgeEnd() override;
 	virtual bool CanAttack() override;
 	void PlayEquipMontage(const FName& SectionName);
 	bool CanDisarm();
@@ -63,6 +66,8 @@ protected:
 	void Disarm();
 	void Arm();
 	virtual void Die() override;
+	bool HasEnoughStamina();
+	bool IsOccupied();
 
 	UFUNCTION(BlueprintCallable)
 	void AttachWeaponToBack();
